@@ -1,62 +1,107 @@
-[readme_del_proyecto.md](https://github.com/user-attachments/files/35333014/readme_del_proyecto.md)
-# El edificio que no se cae
+[readme.md](https://github.com/user-attachments/files/35348140/readme.md)
+# 🏗️ El edificio que no se cae — Con Felipe Repara Feliz
 
-Simulación interactiva en tiempo real de una mesa vibratoria para explorar cómo la ingeniería sísmica chilena protege las estructuras frente a terremotos mediante distintos sistemas de fundación y disipación de energía.
-
----
-
-## Tema elegido
-
-**Ingeniería sísmica y protección estructural en Chile**, inspirado en el trabajo y las investigaciones del ingeniero estructural chileno **Juan Carlos de la Llera** en el desarrollo de sistemas de aislación sísmica y disipadores de energía aplicados a edificios e infraestructura crítica (como hospitales y torres de gran altura, por ejemplo, la Torre Titanium).
+Simulación educativa e interactiva sobre ingeniería sísmica chilena, inspirada en las investigaciones de **Juan Carlos de la Llera** (*Concurso Chile Re-Descubre*). El jugador experimenta en tiempo real durante **1 minuto** cómo distintas tecnologías de protección sísmica mantienen en pie un edificio de 10 pisos y protegen a sus habitantes durante terremotos de distinta magnitud.
 
 ---
 
-## Descripción conceptual
+## 🎬 Video de demostración
 
-Chile es uno de los países más sísmicos del mundo, lo que ha impulsado soluciones de vanguardia para evitar el colapso y reducir los daños estructurales durante terremotos de gran magnitud.
+> **Nota:** Si subes tu grabación `.mp4` a la carpeta `assets/demo.mp4` (o arrastras el video directamente al editor de GitHub), el reproductor se mostrará automáticamente. Si lo subiste a YouTube, utiliza el enlace con miniatura de más abajo.
 
-Esta aplicación modela un **edificio de corte de 10 pisos** montado sobre una mesa vibratoria virtual, permitiendo experimentar y comparar en una sesión de **1 minuto** tres estrategias constructivas:
+### Opción 1: Reproductor de video directo (`.mp4` / GitHub)
 
-1. **Base rígida:** El edificio está empotrado directamente al suelo. Transmite íntegramente el movimiento sísmico a la estructura, generando altas deformaciones entre pisos y acumulación de daño (grietas) cuando la magnitud es elevada.
-2. **Aislación sísmica:** La estructura descansa sobre apoyos deslizantes que funcionan como un péndulo invertido. El suelo se desplaza bajo el edificio mientras la superestructura permanece casi inmóvil, reduciendo drásticamente las deformaciones internas.
-3. **Disipadores de energía:** Incorpora amortiguadores diagonales entre pisos que absorben la energía cinética del balanceo y la transforman en calor, frenando rápidamente las oscilaciones.
+<div align="center">
+  <video src="assets/demo.mp4" controls width="100%" poster="assets/preview.png">
+    Tu navegador no soporta la reproducción directa de video. Puedes verlo en <a href="assets/demo.mp4">assets/demo.mp4</a>.
+  </video>
+</div>
 
-La experiencia está acompañada por un guía virtual (**ReparaFelix**), un sismógrafo en vivo en escala Richter, retroalimentación visual de grietas y un motor de audio generativo que adapta el retumbo, los crujidos estructurales y las alarmas según la intensidad del sismo.
+### Opción 2: Enlace con miniatura (YouTube / Vimeo)
 
----
+[![Ver demostración de El edificio que no se cae](https://img.youtube.com/vi/REEMPLAZA_CON_TU_ID/maxresdefault.jpg)](https://www.youtube.com/watch?v=REEMPLAZA_CON_TU_ID "Haz clic para ver la demostración en video")
 
-## Instrucciones de uso e interacción
-
-### Requisitos previos
-* Un navegador web moderno (Chrome, Edge, Firefox o Safari).
-* Cámara web (opcional, recomendada para la experiencia gestual).
-* Debido a las políticas de seguridad de los navegadores para el acceso a la cámara (`getUserMedia`), se recomienda abrir el archivo `index.html` a través de un servidor local (por ejemplo, *Live Server* en VS Code o `python -m http.server`) o mediante `https://`.
-
-### Controles mediante cámara (MediaPipe Hands)
-Al presionar **¡Empezar!** y conceder permiso a la cámara, podrás controlar la simulación usando ambas manos frente a la pantalla:
-
-* **Mano derecha — Intensidad del sismo:**
-  * **Mano cerrada (puño):** Calma sísmica (magnitud $0.0$).
-  * **Mano abierta:** Aumenta progresivamente la magnitud del terremoto hasta niveles gigantes (similares al sismo del Maule 2010, ~8.8).
-* **Mano izquierda — Tipo de protección estructural:**
-  * **1 dedo levantado:** Base rígida.
-  * **2 dedos levantados:** Aislación sísmica.
-  * **3 dedos levantados:** Disipadores de energía.
-
-*(Nota: Mantén la seña de la mano izquierda durante unos instantes para confirmar el cambio de sistema estructural).*
-
-### Controles alternativos (sin cámara)
-Si no dispones de cámara o prefieres usar teclado y ratón:
-* **Botones inferiores:** Haz clic directamente sobre *Base rígida*, *Aislación sísmica* o *Disipadores* (o usa las teclas `1`, `2` y `3`).
-* **Deslizador (*Sin cámara*):** Arrastra el control deslizante para ajustar la magnitud del sismo (o usa las flechas `↑` y `↓` del teclado).
-* **Sonido:** Activa o desactiva el audio con el botón **Sonido** o presionando la tecla `M`.
+* 🎥 **Demostración del juego (1 min):** [Ver video aquí](https://www.youtube.com/watch?v=REEMPLAZA_CON_TU_ID) *(reemplaza `REEMPLAZA_CON_TU_ID` por el identificador de tu video)*.
+* 🔬 **Contexto científico real:** [Sistema de protección sísmica como modelo de I+D — Juan Carlos de la Llera](https://www.youtube.com/watch?v=-X_EoVsu1ow).
 
 ---
 
-## Tecnologías empleadas
+## ✨ Características principales
 
-* **MediaPipe (`@mediapipe/hands`):** Biblioteca de visión por computador ejecutada directamente en el navegador para la detección y seguimiento en tiempo real de 21 puntos clave (*landmarks*) por mano, permitiendo distinguir lateralidad (izquierda/derecha), grado de apertura de la palma y conteo de dedos sin necesidad de servidores externos.
-* **HTML5 Canvas 2D:** Renderizado en tiempo real de la mesa vibratoria, la deformación por piso del edificio de 10 niveles, los aisladores pendulares, los disipadores diagonales, las grietas dinámicas, el paisaje y el gráfico del sismógrafo.
-* **Motor de física en JavaScript:** Integración numérica de subpasos ($\Delta t = 1/600\text{ s}$) para resolver ecuaciones de movimiento de un sistema de múltiples grados de libertad con rigidez degradable por daño estructural.
-* **Web Audio API:** Síntesis procedural de sonido en tiempo real (ruido browniano filtrado para el retumbo sísmico, osciladores subgraves, crujidos de concreto proporcionales a la deformación y alarma sísmica).
-* **CSS3 & HTML5 Semántico:** Interfaz responsiva con soporte para pantallas táctiles, manejo de preferencias de movimiento reducido (`prefers-reduced-motion`) y etiquetas de accesibilidad ARIA.
+### 1. Guía interactivo: Felipe Repara Feliz
+
+* **Assets vectoriales dinámicos (`SVG` de alta resolución):** Incluye 4 poses y expresiones que reaccionan en tiempo real a los eventos de la simulación:
+  * `idle`: Posando feliz con su martillo dorado en alto.
+  * `wow`: Asombrado al observar el funcionamiento de la aislación sísmica y los disipadores.
+  * `repair`: Blandiendo su martillo dorado con destellos al reparar grietas estructurales.
+  * `panic`: Sudando y sujetándose la gorra cuando el sismo supera la magnitud $6.0$ Richter.
+* **Mecánica del Martillo Dorado:** Permite reparar grietas acumuladas y restaurar ventanas rotas en medio de la partida.
+
+### 2. Física estructural de 10 pisos y 3 tipos de fundación
+
+El simulador resuelve un modelo dinámico de edificio de corte de 10 niveles sometido a movimiento basal:
+
+1. **Base rígida (`1 dedo` / Tecla `1`):** El edificio está anclado directamente al suelo; transmite toda la aceleración sísmica, generando grandes deformaciones y grietas.
+2. **Aislación sísmica (`2 dedos` / Tecla `2`):** Incorpora una interfaz deslizante tipo péndulo en la base que desacopla el movimiento del suelo respecto a la estructura.
+3. **Disipadores de energía (`3 dedos` / Tecla `3`):** Amortiguadores diagonales (como en la *Torre Titanium* en Santiago) que absorben energía cinética y reducen el balanceo.
+
+### 3. Ventanas con residentes y rescate en terremotos fuertes
+
+* El edificio cuenta con **30 ventanas** distribuidas en sus 10 pisos.
+* Cuando la magnitud alcanza niveles fuertes ($M \ge 5.0$), las ventanas se iluminan en alerta y **aparecen vecinos pidiendo ayuda**.
+* Si la deriva entre pisos es excesiva (especialmente con *Base rígida* en sismos sobre $M = 5.6$), los vidrios ceden y **los personajes caen del edificio** hasta rebotar a salvo en las **colchonetas inflables de rescate** ubicadas a los costados de la mesa vibratoria.
+
+### 4. Audio procedural (Web Audio API)
+
+Todos los efectos sonoros se sintetizan en tiempo real sin necesidad de archivos externos:
+
+* **Retumbo sísmico y subgraves:** Escalan dinámicamente según la magnitud Richter y la fase de la onda.
+* **Crujidos de concreto:** Proporcionales al daño estructural acumulado en cada piso.
+* **Vidrios rotos, silbido de caída y rebote:** Se activan cada vez que un vecino cae hacia la colchoneta de rescate.
+* **Martillo dorado y alertas sísmicas:** Efectos musicales al reparar o cambiar de sistema estructural.
+
+---
+
+## 🎮 Controles
+
+### Opción A: Control por cámara web (MediaPipe Hands)
+
+* **Mano derecha:** Ciérrala para mantener calma ($0.0$) y ábrela gradualmente para aumentar la intensidad del sismo hasta $8.8$ Richter.
+* **Mano izquierda:**
+  * `1 dedo` levantado: **Base rígida**
+  * `2 dedos` levantados: **Aislación sísmica**
+  * `3 dedos` levantados: **Disipadores**
+
+### Opción B: Teclado y ratón (Sin cámara)
+
+* **Deslizador inferior** o teclas `↑` / `↓`: Ajustar la magnitud del sismo.
+* Teclas `1`, `2`, `3` o botones inferiores: Cambiar el tipo de base del edificio.
+* Botón **`🔨 Reparar`** o tecla `R`: Usar el martillo dorado de Felipe Repara Feliz para reparar grietas.
+* Botón **`Sonido`** o tecla `M`: Silenciar / activar el audio.
+
+---
+
+## 🚀 Instalación y ejecución
+
+El proyecto está contenido íntegramente en un único archivo autónomo (`index.html`), sin dependencias locales adicionales:
+
+1. Descarga o guarda el archivo `index.html`.
+2. Para jugar **con cámara web**, ábrelo mediante un servidor local (`http://localhost`) o un entorno `HTTPS` (requisito de seguridad de los navegadores para acceder a `getUserMedia`). Por ejemplo:
+
+   ```bash
+   npx serve .
+   ```
+
+   o con Python:
+
+   ```bash
+   python3 -m http.server 8080
+   ```
+
+3. Para jugar **sin cámara**, puedes abrir `index.html` directamente con doble clic en cualquier navegador moderno (Chrome, Edge, Firefox, Safari).
+
+---
+
+## 🧠 Propósito educativo
+
+Al finalizar la ronda de **1 minuto**, la pantalla de resultados compara el porcentaje máximo de deformación registrado en cada sistema estructural y muestra el porcentaje de reducción logrado gracias a la **aislación sísmica**, reforzando el valor de la ingeniería chilena en la protección de vidas e infraestructura crítica.
