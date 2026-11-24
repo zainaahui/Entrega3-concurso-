@@ -1,575 +1,411 @@
 <!DOCTYPE html>
-<html lang="es"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>El edificio que no se cae · Juan Carlos de la Llera · Chile Re-Descubre</title>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;600;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin="anonymous"></script>
-<style>
-:root{--cu:#ef4b24;--tq:#0fa597;--am:#ffc93c;--ink:#12324a;--mut:#4f7088;--bg:#7fd6ff}
-*{box-sizing:border-box;margin:0}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:'Bricolage Grotesque',system-ui,sans-serif}
-canvas#c{position:fixed;inset:0;width:100%;height:100%}
-.f{position:fixed}
-#ttl{top:max(14px,env(safe-area-inset-top));left:18px;max-width:min(330px,44vw);pointer-events:none;z-index:2}
-#ttl h1{font-size:clamp(22px,3.2vw,38px);font-weight:800;line-height:1;color:#12324a;text-shadow:0 3px 0 #fff}
-#ttl p{font-size:13px;color:var(--mut);margin-top:6px}
-#clock{display:inline-block;background:#fff;color:#ef4b24;border:3px solid #ef4b24;border-radius:14px;padding:2px 14px;font-size:clamp(24px,3vw,34px);font-weight:800;margin-top:10px;font-variant-numeric:tabular-nums}
-#timer{top:0;left:0;height:8px;background:linear-gradient(90deg,#35d3c4,#ffc93c,#ef4b24);width:0;z-index:3}
-#pick{bottom:calc(12px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;width:max-content;max-width:96vw;z-index:3}
-button{font:inherit;font-weight:700;font-size:15px;color:var(--ink);background:#fff;border:3px solid #12324a;border-radius:18px;box-shadow:0 4px 0 #12324a;padding:8px 14px;cursor:pointer;text-align:center;line-height:1.15;transition:transform .1s}
-button small{display:block;font-size:11px;font-weight:400;color:var(--mut)}
-button:hover{transform:translateY(-2px)}button:active{transform:translateY(3px);box-shadow:0 1px 0 #12324a}button:focus-visible,input:focus-visible{outline:3px solid var(--am);outline-offset:2px}
-button.on{background:#12324a;color:#fff}button.on small{color:#cfe6f5}
-button.big{background:var(--am);color:#12324a;border-color:#12324a;font-size:19px;font-weight:800;padding:14px 28px;margin-top:18px}
-button#fix{background:#ef4b24;color:#fff;animation:pulse .65s infinite alternate}
-@keyframes pulse{to{transform:scale(1.06)}}
-input[type=range]{width:110px;accent-color:var(--cu)}
-#mini{font-size:12px;color:#12324a;font-weight:600;background:rgba(255,255,255,.8);padding:6px 10px;border-radius:14px;border:2px solid #12324a}
-#pip{left:14px;bottom:calc(84px + env(safe-area-inset-bottom));width:176px;border-radius:16px;overflow:hidden;border:4px solid #fff;box-shadow:0 6px 16px rgba(18,50,74,.3);background:#000;z-index:2}
-#pip canvas{display:block;width:100%;height:auto}
-#pip div{font-size:11px;padding:4px 8px;background:#12324a;color:#fff}
-#guide{right:12px;bottom:calc(70px + env(safe-area-inset-bottom));display:flex;align-items:flex-end;gap:8px;pointer-events:none;max-width:calc(100vw - 24px);z-index:2}
-#say{background:#fff;color:#12324a;border:4px solid #ffc93c;font-weight:700;font-size:clamp(15px,1.7vw,18px);line-height:1.3;padding:12px 16px;border-radius:20px 20px 4px 20px;max-width:min(300px,52vw);box-shadow:0 6px 20px rgba(0,0,0,.35);margin-bottom:70px}
-#pudu{width:clamp(90px,12vw,140px);height:auto;flex:none;transform-origin:50% 100%;animation:bob 2.4s ease-in-out infinite;filter:drop-shadow(0 6px 8px rgba(18,50,74,.4))}#pudu.jump{animation:jp .6s ease-out 1}
-#pudu.sh{animation:sh .18s linear infinite}
-@keyframes bob{50%{transform:translateY(-8px) rotate(-2deg)}}@keyframes jp{40%{transform:translateY(-26px) scale(1.06)}}@keyframes sh{25%{transform:translate(4px,0) rotate(3deg)}75%{transform:translate(-4px,0) rotate(-3deg)}}
-.ov{inset:0;background:rgba(18,50,74,.65);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:18px;z-index:10}
-.card{background:#fffaf0;color:#12324a;border:5px solid #12324a;box-shadow:0 8px 0 #12324a;border-radius:28px;padding:clamp(18px,3vw,32px);max-width:560px;text-align:center}
-.card h2{font-size:clamp(26px,4vw,40px);font-weight:800;line-height:1.05}
-.card p{color:var(--mut);margin-top:8px;line-height:1.4}
-.rule{display:grid;grid-template-columns:auto 1fr;gap:12px;text-align:left;align-items:center;margin-top:14px;font-size:16px}
-.rule b{font-size:30px;width:44px;text-align:center}
-.res{margin:14px 0;text-align:left}.res div{display:grid;grid-template-columns:130px 1fr 54px;gap:8px;align-items:center;margin:7px 0;font-size:15px}
-.res i{display:block;height:12px;border-radius:6px}
-.hide{display:none!important}
-@media(max-width:700px){#pip{width:116px;bottom:calc(150px + env(safe-area-inset-bottom))}#say{margin-bottom:20px}}
-@media(prefers-reduced-motion:reduce){#pudu{animation:none}}
-</style></head><body>
-<canvas id="c"></canvas><div id="timer" class="f"></div>
-<div id="ttl" class="f"><h1>El edificio que no se cae</h1><p>Mesa vibratoria del ingeniero chileno Juan Carlos de la Llera</p><div id="clock">1:00</div></div>
-<div id="pip" class="f"><canvas id="mc" width="480" height="360"></canvas><div id="st">Cámara apagada</div></div>
-<div id="guide" class="f"><div id="say">¡Hola! Soy el Tío Constructor.</div>
-<img id="pudu" src="" alt="Tío Constructor, guía del juego"></div>
-<div id="pick" class="f">
-  <div id="modes" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"></div>
-  <button id="fix" class="hide" type="button">🛠️ Reconstruir</button>
-  <label id="mini">Sin cámara: <input id="sl" type="range" min="0" max="9" step="0.1" value="0" aria-label="Intensidad manual"></label>
-  <button id="snd" type="button" aria-pressed="true">Sonido: sí</button>
-</div>
-<div id="intro" class="ov f"><div class="card"><h2>El edificio que no se cae</h2><p>El Tío Constructor te invita a probar cómo los ingenieros chilenos protegen los edificios de los terremotos. ¡Dura 1 minuto!</p>
-<div class="rule"><b>✋</b><span><strong>Mano derecha:</strong> ciérrala para calma, ábrela para un sismo más fuerte.</span></div>
-<div class="rule"><b>☝✌</b><span><strong>Mano izquierda:</strong> 1 dedo = base rígida (¡si la exiges al extremo se cae!), 2 = aislación, 3 = disipadores.</span></div>
-<p style="font-size:13px">Sin cámara también puedes jugar con el deslizador y los botones.</p>
-<button class="big" id="go" type="button">¡Empezar!</button></div></div>
-<div id="end" class="ov f hide"><div class="card"><h2>¡Tiempo!</h2><p id="msg"></p><div class="res" id="res"></div><p style="font-size:13px">Los aisladores y disipadores que investiga Juan Carlos de la Llera ayudan a que edificios y hospitales de Chile sigan en pie.</p><button class="big" id="again" type="button">Jugar de nuevo</button></div></div>
-<script>
-const $=id=>document.getElementById(id),cv=$('c'),x=cv.getContext('2d');
-let W,Hh;
-function rs(){const d=Math.min(2,devicePixelRatio||1);W=innerWidth;Hh=innerHeight;cv.width=W*d;cv.height=Hh*d;x.setTransform(d,0,0,d,0,0)}
-addEventListener('resize',rs);rs();
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiverso 360 - Portales Mágicos y Terremoto</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-// Pudú SVG generado como data URI para que siempre cargue sin depender de imágenes externas rotas
-$('pudu').src="data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160"><ellipse cx="80" cy="148" rx="44" ry="8" fill="rgba(18,50,74,0.25)"/><path d="M52 142 L56 106 L70 106 L68 142 Z" fill="#8b5a2b" stroke="#12324a" stroke-width="4"/><path d="M92 142 L90 106 L104 106 L108 142 Z" fill="#784b22" stroke="#12324a" stroke-width="4"/><ellipse cx="80" cy="94" rx="34" ry="26" fill="#9c6633" stroke="#12324a" stroke-width="4"/><circle cx="80" cy="54" r="26" fill="#9c6633" stroke="#12324a" stroke-width="4"/><ellipse cx="56" cy="36" rx="9" ry="12" fill="#784b22" stroke="#12324a" stroke-width="3.5"/><ellipse cx="104" cy="36" rx="9" ry="12" fill="#784b22" stroke="#12324a" stroke-width="3.5"/><circle cx="70" cy="52" r="4.5" fill="#12324a"/><circle cx="90" cy="52" r="4.5" fill="#12324a"/><circle cx="71.5" cy="50.5" r="1.5" fill="#fff"/><circle cx="91.5" cy="50.5" r="1.5" fill="#fff"/><ellipse cx="80" cy="60" rx="5" ry="3.5" fill="#12324a"/><path d="M73 66 Q80 72 87 66" fill="none" stroke="#12324a" stroke-width="3" stroke-linecap="round"/><path d="M50 38 Q80 18 110 38 L105 44 Q80 30 55 44 Z" fill="#ffc93c" stroke="#12324a" stroke-width="3.5"/><rect x="74" y="22" width="12" height="10" rx="3" fill="#ef4b24" stroke="#12324a" stroke-width="3"/></svg>`);
+        .magical-hud {
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fffa65;
+            background: rgba(15, 20, 35, 0.88);
+            border: 1px solid rgba(255, 211, 42, 0.55);
+            padding: 10px 26px;
+            border-radius: 30px;
+            font-size: 14px;
+            letter-spacing: 0.8px;
+            z-index: 10;
+            pointer-events: none;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.65), 0 0 15px rgba(255, 211, 42, 0.3);
+            backdrop-filter: blur(6px);
+            transition: all 0.3s ease;
+        }
 
-/* ---------- Audio (Web Audio API) ---------- */
-let AC=null,master,AU={},muted=false,lastDm=0;
-function audioInit(){
- try{
-  if(!AC){
-   const Ctx=window.AudioContext||window.webkitAudioContext;
-   if(!Ctx)return;
-   AC=new Ctx();
-   const comp=AC.createDynamicsCompressor();
-   master=AC.createGain();
-   master.gain.value=muted?0:.9;
-   master.connect(comp);comp.connect(AC.destination);
-   const mk=(n,brown)=>{
-    const b=AC.createBuffer(1,AC.sampleRate*n,AC.sampleRate),d=b.getChannelData(0);
-    let l=0;
-    for(let i=0;i<d.length;i++){const w=Math.random()*2-1;if(brown){l=(l+.02*w)/1.02;d[i]=l*3.5}else d[i]=w}
-    return b;
-   };
-   AU.nb=mk(3,1);AU.wb=mk(1,0);
-   const rs=AC.createBufferSource();rs.buffer=AU.nb;rs.loop=true;rs.start();
-   AU.lp=AC.createBiquadFilter();AU.lp.type='lowpass';AU.lp.Q.value=2;
-   AU.rg=AC.createGain();AU.rg.gain.value=0;
-   rs.connect(AU.lp);AU.lp.connect(AU.rg);AU.rg.connect(master);
-   AU.sub=AC.createOscillator();AU.sub.frequency.value=30;
-   AU.sg=AC.createGain();AU.sg.gain.value=0;
-   AU.sub.connect(AU.sg);AU.sg.connect(master);AU.sub.start();
-   AU.al=AC.createOscillator();AU.al.type='square';
-   const af=AC.createBiquadFilter();af.type='bandpass';af.frequency.value=1100;af.Q.value=.8;
-   AU.ag=AC.createGain();AU.ag.gain.value=0;
-   AU.al.connect(af);af.connect(AU.ag);AU.ag.connect(master);AU.al.start();
-  }
-  if(AC.state==='suspended')AC.resume();
- }catch(e){}
-}
-function tone(f,d,type='sine',v=.2,t0=0,f2){
- if(!AC)return;
- try{
-  const t=AC.currentTime+t0,o=AC.createOscillator(),g=AC.createGain();
-  o.type=type;o.frequency.setValueAtTime(f,t);
-  if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);
-  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+d);
-  o.connect(g);g.connect(master);o.start(t);o.stop(t+d+.05);
- }catch(e){}
-}
-function crack(k){
- if(!AC)return;
- try{
-  const t=AC.currentTime,s=AC.createBufferSource();s.buffer=AU.wb;
-  const f=AC.createBiquadFilter();f.type='bandpass';f.frequency.value=400+Math.random()*2600;f.Q.value=1.4;
-  const g=AC.createGain();g.gain.setValueAtTime(.25+.6*k,t);g.gain.exponentialRampToValueAtTime(.001,t+.04+.2*k*Math.random());
-  s.connect(f);f.connect(g);g.connect(master);s.start(t,Math.random()*.5);s.stop(t+.3);
-  if(k>.5)tone(100+Math.random()*60,.28,'triangle',.3*k,0,40);
- }catch(e){}
-}
-function sfxCollapse(){
- tone(140,.75,'sawtooth',.35,0,28);
- tone(75,.9,'triangle',.4,0,22);
- for(let i=0;i<6;i++)crack(1);
-}
-function sfxMode(m){
- if(m==0){tone(150,.25,'square',.12,0,90);tone(110,.3,'square',.12,.12,70)}
- else if(m==1){[440,660,880].forEach((f,i)=>tone(f,.28,'sine',.18,i*.1))}
- else{tone(330,.12,'triangle',.2);tone(330,.12,'triangle',.2,.14);tone(495,.25,'triangle',.2,.28)}
-}
-function audioUpdate(){
- if(!AC)return;
- try{
-  const t=AC.currentTime,k=Math.min(1,M/8.8),b=B[mode],iso=mode==1,kk=Math.pow(k,1.4);
-  AU.rg.gain.setTargetAtTime((M<1?0:kk*1.3)*(iso?.55:1)*(.75+.25*Math.sin(ph)),t,.05);
-  AU.lp.frequency.setTargetAtTime((70+k*330)*(iso?.6:1),t,.08);
-  AU.sub.frequency.setTargetAtTime(26+k*36,t,.1);AU.sg.gain.setTargetAtTime((M<1?0:kk*.5)*(iso?.6:1),t,.08);
-  const st=Math.min(1,b.pk/.02),rate=M<3||b.collapsed?0:(iso?.4:1)*(2+st*14+b.dm*12)*k;
-  if(Math.random()<rate/60)crack(Math.min(1,st+b.dm*.5+.15));
-  if(b.dm>lastDm+.05){crack(1);lastDm=b.dm}else if(b.dm<lastDm)lastDm=b.dm;
-  const on=M>5.2&&phase=='play'&&!b.collapsed,lv=on?.03+Math.min(1,(M-5.2)/3)*.09:0;
-  AU.al.frequency.setTargetAtTime(Math.floor(T*2.4)%2?560+k*200:760+k*260,t,.005);
-  AU.ag.gain.setTargetAtTime(on&&((T*2.4)%1)<.85?lv:0,t,.01);
- }catch(e){}
-}
+        .magical-hud.quake-alert {
+            color: #ff6b6b;
+            border-color: rgba(255, 71, 87, 0.85);
+            box-shadow: 0 0 25px rgba(255, 71, 87, 0.55);
+        }
 
-/* ---------- Física: edificio de corte de 10 pisos + escombros al colapsar ---------- */
-const N=10,HS=3.2,KM=1764,KB=69,CB=8.6;
-const MODES=['Base rígida','Aislación sísmica','Disipadores'],FING=['1 dedo','2 dedos','3 dedos'],COL=['#ef4b24','#0fa597','#e89400'];
-const INFO=[
- 'Base fija: si el sismo es extremo y se acumula daño, ¡el edificio colapsa!',
- 'Base deslizante como un péndulo: el suelo se mueve y el edificio casi no.',
- 'Amortiguadores: frenan el balanceo y lo convierten en calor (Torre Titanium).'
-];
-const BETA=[.016,.016,.07];
-const B=[0,1,2].map(m=>({
- m,u:new Float64Array(N+1),v:new Float64Array(N+1),a:new Float64Array(N+1),d:new Float64Array(N+1),
- pk:0,dm:0,collapsed:false,
- cr:Array.from({length:N+1},()=>[Math.random(),Math.random(),Math.random(),Math.random()])
-}));
-let debris=[],particles=[],shake=0;
+        .felix-guide-container {
+            position: absolute;
+            bottom: 15px;
+            left: 20px;
+            display: flex;
+            align-items: flex-end;
+            z-index: 20;
+            pointer-events: none;
+            animation: floatCharacter 3.5s ease-in-out infinite;
+        }
 
-function spawnCollapse(b,cx,gy,sp,bw){
- b.collapsed=true;
- shake=22;
- sfxCollapse();
- $('fix').classList.remove('hide');
- for(let i=1;i<=N;i++){
-  const yFloor=gy-30-(i-1)*sp;
-  const xFloor=cx+(b.u[i]||0)*(sp/HS)*3;
-  debris.push({
-   x:xFloor,y:yFloor,
-   vx:(Math.random()-.5)*260+(b.v[i]||0)*18,
-   vy:-80-Math.random()*220-i*14,
-   ang:(Math.random()-.5)*.2,
-   va:(Math.random()-.5)*7,
-   w:bw*(.85+Math.random()*.2),
-   h:Math.max(14,sp*.85),
-   floor:i,
-   bounced:0
-  });
-  for(let p=0;p<14;p++){
-   particles.push({
-    kind:Math.random()<.65?'dust':'spark',
-    x:xFloor+(Math.random()-.5)*bw,
-    y:yFloor+(Math.random()-.5)*sp,
-    vx:(Math.random()-.5)*320,
-    vy:-40-Math.random()*260,
-    r:3+Math.random()*9,
-    life:.7+Math.random()*.8,
-    maxLife:1.5
-   });
-  }
- }
- speak('¡CRASH! Por usar base rígida al extremo se cayó el edificio. ¡Pulsa Reconstruir o prueba 2 o 3 dedos!','shock',6);
-}
+        .felix-avatar {
+            width: 145px;
+            height: auto;
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.75));
+            z-index: 2;
+        }
 
-function repairBuilding(m=mode){
- const b=B[m];
- b.collapsed=false;
- b.u.fill(0);b.v.fill(0);b.a.fill(0);b.d.fill(0);b.pk=0;b.dm=0;
- debris=debris.filter(d=>d.mode!==m);
- $('fix').classList.add('hide');
- tone(440,.15,'triangle',.18);tone(660,.2,'triangle',.18,.12);
- speak('¡Edificio reconstruido! Prueba qué pasa si cambias a aislación o disipadores.','happy',3);
-}
+        .speech-bubble {
+            position: relative;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f2f6 100%);
+            color: #1e272e;
+            padding: 14px 20px;
+            border-radius: 20px;
+            border-bottom-left-radius: 4px;
+            margin-left: -15px;
+            margin-bottom: 55px;
+            max-width: 270px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 0 3px #ffd32a;
+            font-size: 14px;
+            line-height: 1.4;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
 
-const ks=(b,i)=>KM*(1-.95*Math.min(1,b.d[i]));
-function step(b,ug,vg,dt){
- if(b.collapsed)return;
- const{u,v,a,d}=b,iso=b.m==1,be=BETA[b.m];
- if(!iso){u[0]=ug;v[0]=vg}
- for(let i=0;i<=N;i++){
-  let f=0;
-  if(i>0){const k=ks(b,i);f-=k*(u[i]-u[i-1])+be*k*(v[i]-v[i-1])}
-  if(i<N){const k=ks(b,i+1);f+=k*(u[i+1]-u[i])+be*k*(v[i+1]-v[i])}
-  if(i==0&&iso)f-=KB*(u[0]-ug)+CB*(v[0]-vg);
-  a[i]=f/(i?1:2);
- }
- for(let i=iso?0:1;i<=N;i++){v[i]+=a[i]*dt;u[i]+=v[i]*dt}
- for(let i=1;i<=N;i++){
-  const r=Math.abs(u[i]-u[i-1])/HS;
-  if(r>.004)d[i]=Math.min(1.2,d[i]+(r-.004)*dt*15);
- }
-}
+        .speech-bubble.quake-bubble {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 0 3px #ff4757;
+        }
 
-let M=0,Mt=0,ph=0,T=0,ug=0,vg=0,quiet=0;
-function ground(dt){
- M+=(Mt-M)*Math.min(1,dt*4);T+=dt;
- const pga=M<2.5?0:.01*Math.pow(10,.28*(M-3));
- const w=2*Math.PI*(.8+.25*Math.max(0,M-3)/5.8)*(1+.08*Math.sin(T*.7));
- ph+=w*dt;const A=pga*9.8/(w*w),p2=1.87*ph+1.1;
- ug=A*(Math.sin(ph)+.35*Math.sin(p2));
- vg=A*w*(Math.cos(ph)+.65*Math.cos(p2));
- shake=Math.max(shake-dt*28, M>5.5?(M-5.5)*3.2:0);
-}
+        .speech-bubble strong {
+            color: #0984e3;
+            font-size: 15px;
+            display: block;
+            margin-bottom: 3px;
+        }
 
-/* ---------- Estado del juego y guía ---------- */
-let mode=0,phase='intro',gt=0,hold=0,si=0,peaks=[0,0,0],fl={},tI=0,tD=0,acc=0;
-const HN=150,hist=new Array(HN).fill(0);
-const SCRIPT=[
- [0,'¡Hola! Soy el Tío Constructor. ¡Vamos a hacer temblar un edificio!','happy'],
- [6,'Mano DERECHA: ciérrala para calma y ábrela para un sismo grande.','happy'],
- [15,'Mano IZQUIERDA: 1 dedo es base rígida. ¡Si la llevas al extremo se cae!','wow'],
- [28,'Ahora 2 dedos: aislación sísmica. ¡La base se desliza como un péndulo!','wow'],
- [40,'3 dedos: disipadores, como en la Torre Titanium. ¡Frenan el balanceo!','happy'],
- [50,'Desafío final: ¡un sismo gigante como el del Maule 2010! Prueba las tres bases.','wow']
-];
-function speak(t,m,h){
- $('say').textContent=t;hold=gt+(h||0);
- const p=$('pudu');p.classList.remove('jump');void p.offsetWidth;
- if(m!='happy'){p.classList.add('jump');tone(300,.3,'sine',.18,0,700)}
-}
-function setMode(m){
- const o=mode;mode=(m+3)%3;
- if(AC&&o!==mode)sfxMode(mode);
- [...$('modes').children].forEach((e,i)=>e.classList.toggle('on',i==mode));
- $('fix').classList.toggle('hide',!B[mode].collapsed);
-}
-MODES.forEach((n,i)=>{
- const b=document.createElement('button');
- b.type='button';
- b.innerHTML=`${n}<small>${FING[i]}</small>`;
- b.style.borderBottom='4px solid '+COL[i];
- b.onclick=()=>setMode(i);
- $('modes').appendChild(b);
-});
-setMode(0);
+        @keyframes floatCharacter {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-7px); }
+        }
 
-$('fix').onclick=()=>repairBuilding(mode);
-$('sl').oninput=e=>{Mt=+e.target.value};
-addEventListener('keydown',e=>{
- if(e.key>='1'&&e.key<='3')setMode(+e.key-1);
- if(e.key=='ArrowUp'){Mt=Math.min(9,Mt+.5);$('sl').value=Mt}
- if(e.key=='ArrowDown'){Mt=Math.max(0,Mt-.5);$('sl').value=Mt}
- if(e.key=='r'||e.key=='R')repairBuilding(mode);
-});
+        @media (max-width: 600px) {
+            .felix-avatar { width: 105px; }
+            .speech-bubble { max-width: 190px; font-size: 12px; margin-bottom: 40px; }
+        }
+    </style>
+</head>
+<body>
 
-function start(){
- audioInit();
- tone(659,.15,'triangle',.2);tone(880,.3,'triangle',.2,.12);
- phase='play';gt=0;hold=0;si=0;peaks=[0,0,0];fl={};tI=tD=0;debris=[];particles=[];
- B.forEach(b=>{b.d.fill(0);b.u.fill(0);b.v.fill(0);b.pk=0;b.dm=0;b.collapsed=false});
- $('fix').classList.add('hide');
- $('intro').classList.add('hide');
- $('end').classList.add('hide');
- initCam();
-}
-function finish(){
- phase='end';
- [523,659,784].forEach((f,i)=>tone(f,.25,'triangle',.22,i*.15));tone(1047,.6,'triangle',.22,.45);
- Mt=0;$('sl').value=0;$('timer').style.width=0;
- const mx=Math.max(.001,...peaks),r=peaks[0]>0&&peaks[1]>0?Math.round(100*(1-peaks[1]/peaks[0])):null;
- $('msg').textContent=r!==null?`La aislación redujo la deformación del edificio un ${Math.max(0,r)} % frente a la base rígida.`:'Para comparar, prueba las tres bases con un sismo fuerte.';
- $('res').innerHTML=MODES.map((n,i)=>`<div><span>${n}</span><i style="width:${peaks[i]?Math.max(4,peaks[i]/mx*100):0}%;background:${COL[i]}"></i><b>${B[i].collapsed?'CAÍDO':peaks[i]?(peaks[i]*100).toFixed(1)+'%':'–'}</b></div>`).join('');
- $('end').classList.remove('hide');
- speak('¡Buen trabajo, ingeniero o ingeniera!','happy');
-}
-const tgl=()=>{
- muted=!muted;
- if(master&&AC)master.gain.setTargetAtTime(muted?0:.9,AC.currentTime,.05);
- $('snd').textContent='Sonido: '+(muted?'no':'sí');
- $('snd').setAttribute('aria-pressed',!muted);
-};
-$('snd').onclick=tgl;
-addEventListener('keydown',e=>{if(e.key=='m'||e.key=='M')tgl()});
-$('go').onclick=start;
-$('again').onclick=start;
+    <div class="magical-hud" id="instruction">
+        ✨ Apunta tu mirada al portal brillante para viajar de realidad ✨
+    </div>
 
-/* ---------- Cámara y manos ---------- */
-const mc=$('mc'),mx2=mc.getContext('2d'),dist=(p,q)=>Math.hypot(p.x-q.x,p.y-q.y),cl=(v,a,b)=>Math.max(a,Math.min(b,v));
-const openness=h=>[8,12,16,20].reduce((s,i)=>s+dist(h[0],h[i]),0)/4/dist(h[0],h[9]);
-const fingers=h=>[[8,6],[12,10],[16,14],[20,18]].filter(([t,p])=>dist(h[0],h[t])>dist(h[0],h[p])*1.15).length;
-let wasR=false,cand=0,candT=0,camOn=false;
-function onHands(r){
- const hs=r.multiHandLandmarks||[],hd=r.multiHandedness||[];let R=null,L=null;
- hs.forEach((h,i)=>{
-  const right=hd[i]&&hd[i].label==='Right';
-  if(right)R=h;else L=h;
-  mx2.fillStyle=right?'#ff6a3d':'#35d3c4';
-  h.forEach(p=>{mx2.beginPath();mx2.arc(p.x*480,p.y*360,5,0,7);mx2.fill()});
- });
- $('st').textContent=(R?'Derecha ✓ ':'Derecha ✗ ')+(L?'· Izquierda ✓':'· Izquierda ✗');
- if(R){const t=cl((openness(R)-1.15)/.75,0,1);Mt=t<.08?0:2.5+6.5*t;$('sl').value=Mt.toFixed(1);wasR=true}
- else if(wasR){Mt=0;$('sl').value=0;wasR=false}
- if(L){const n=fingers(L),now=performance.now();if(n<1||n>3){cand=0}else if(n!==cand){cand=n;candT=now}else if(now-candT>350&&n-1!==mode)setMode(n-1)}
-}
-async function initCam(){
- if(camOn)return;camOn=true;
- try{
-  if(typeof Hands==='undefined'||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw 0;
-  const v=document.createElement('video');v.playsInline=true;v.muted=true;
-  v.srcObject=await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'}});
-  await v.play();
-  const h=new Hands({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/${f}`});
-  h.setOptions({maxNumHands:2,modelComplexity:1,minDetectionConfidence:.6,minTrackingConfidence:.5});
-  h.onResults(onHands);
-  const lp=async()=>{
-   if(v.readyState>=2){mx2.save();mx2.scale(-1,1);mx2.drawImage(v,-480,0,480,360);mx2.restore();await h.send({image:mc})}
-   requestAnimationFrame(lp);
-  };
-  lp();
- }catch(e){camOn=false;$('st').textContent='Sin cámara: usa el deslizador'}
-}
+    <div class="felix-guide-container">
+        <img src="felix.png" alt="Repara Félix" class="felix-avatar" onerror="this.src='image_db0ee8.png'">
+        <div class="speech-bubble" id="felix-dialog">
+            <strong>¡Hola, soy Repara Félix! 🔨✨</strong>
+            <span id="felix-text">¡Con mi martillo dorado puedo reparar cualquier grieta dimensional! Mira fijamente los portales para cruzar.</span>
+        </div>
+    </div>
 
-/* ---------- Simulación ---------- */
-function sim(dt){
- ground(dt);
- const n=Math.ceil(dt/(1/600)),h=dt/n;
- for(let s=0;s<n;s++)B.forEach(b=>step(b,ug,vg,h));
- quiet=M<1.5?quiet+dt:0;
+    <a-scene embedded>
+        <a-assets>
+            <img id="img-1" src="1.webp" crossorigin="anonymous">
+            <img id="img-2" src="2.webp" crossorigin="anonymous">
+            <img id="img-3" src="3.webp" crossorigin="anonymous">
 
- const gy=Hh*.73,cx=W<760?W*.5:W*.42,sp=Math.min(40,Hh*.4/(N+1)),bw=Math.min(W*.2,sp*4);
+            <canvas id="tex-vortex" width="512" height="512"></canvas>
+            <canvas id="tex-runes" width="512" height="512"></canvas>
+        </a-assets>
 
- B.forEach(b=>{
-  if(b.collapsed)return;
-  let mx=0,sd=0;
-  for(let i=1;i<=N;i++){
-   mx=Math.max(mx,Math.abs(b.u[i]-b.u[i-1])/HS);
-   sd+=Math.min(1,b.d[i]);
-   if(quiet>2.5)b.d[i]=Math.max(0,b.d[i]-dt*.5);
-  }
-  b.pk=Math.max(mx,b.pk*Math.exp(-dt/3));
-  b.dm=sd/N;
+        <a-sky id="sky-sphere" src="#img-1" rotation="0 -90 0"></a-sky>
 
-  // Colapso dramático si se usa Base Rígida (m==0) al extremo (sismo >= 7.2 y daño alto)
-  if(b.m===0 && M>=7.2 && b.dm>=.68){
-   spawnCollapse(b,cx,gy,sp,bw);
-  }
- });
+        <a-light type="ambient" color="#ffffff" intensity="0.85"></a-light>
+        <a-light type="point" intensity="1.8" position="0 3 -2" color="#ffd32a"></a-light>
 
- // Actualizar escombros y partículas
- for(let i=debris.length-1;i>=0;i--){
-  const d=debris[i];
-  d.vy+=680*dt;
-  d.x+=d.vx*dt;
-  d.y+=d.vy*dt;
-  d.ang+=d.va*dt;
-  if(d.y+d.h/2>=gy){
-   d.y=gy-d.h/2;
-   d.vy*=-.35;
-   d.vx*=.72;
-   d.va*=.65;
-   if(Math.abs(d.vy)<25)d.vy=0;
-   if(Math.random()<.4)particles.push({kind:'dust',x:d.x+(Math.random()-.5)*d.w,y:gy-4,vx:(Math.random()-.5)*140,vy:-30-Math.random()*90,r:5+Math.random()*8,life:.6,maxLife:.6});
-  }
- }
- for(let i=particles.length-1;i>=0;i--){
-  const p=particles[i];
-  p.life-=dt;
-  if(p.life<=0){particles.splice(i,1);continue}
-  if(p.kind==='spark')p.vy+=500*dt;
-  else p.vy-=18*dt;
-  p.x+=p.vx*dt;p.y+=p.vy*dt;p.r+=dt*10;
- }
+        <!-- Contenedor de dramatismo sísmico (ventanas y personas que caen) -->
+        <a-entity id="earthquake-container"></a-entity>
 
- acc+=dt;if(acc>=.1){acc-=.1;hist.push(M);hist.shift()}
- $('pudu').classList.toggle('sh',M>6.5);
- audioUpdate();
- if(phase!='play')return;
+        <!-- Contenedor dinámico de portales -->
+        <a-entity id="portals-container"></a-entity>
 
- gt+=dt;
- const left=Math.max(0,60-gt);
- $('clock').textContent=Math.floor(left/60)+':'+String(Math.ceil(left)%60).padStart(2,'0').replace(/^60$/,'00');
- $('timer').style.width=gt/60*100+'%';
- if(M>=5)peaks[mode]=Math.max(peaks[mode],B[mode].pk);
- if(si<SCRIPT.length&&gt>=SCRIPT[si][0]&&gt>=hold){speak(SCRIPT[si][1],SCRIPT[si][2],0);si++}
- if(mode==0&&!B[0].collapsed&&M>5&&B[0].dm>.2&&!fl.r){fl.r=1;speak('¡Uy! La base rígida deja pasar todo el sismo y el edificio se agrieta.','shock',4)}
- tI=mode==1&&M>5?tI+dt:tI;if(tI>2&&!fl.i){fl.i=1;speak('¡Mira! La base se desliza y el edificio casi no se deforma.','wow',4)}
- tD=mode==2&&M>5?tD+dt:tD;if(tD>2&&!fl.d){fl.d=1;speak('Los amortiguadores frenan el balanceo, como en la Torre Titanium.','wow',4)}
- if(gt>=60)finish();
-}
+        <!-- Rig de cámara con sacudida sísmica -->
+        <a-entity id="camera-rig" position="0 1.6 0">
+            <a-entity id="main-camera" camera look-controls>
+                <a-cursor id="cursor"
+                          fuse="true"
+                          fuse-timeout="1200"
+                          raycaster="objects: .portal-hitbox"
+                          material="color: #ffd32a; shader: flat"
+                          position="0 0 -1"
+                          geometry="primitive: ring; radiusInner: 0.014; radiusOuter: 0.024"
+                          animation__fuse="property: scale; startEvents: fusing; to: 2 2 2; dur: 1200; easing: easeInOutQuad"
+                          animation__mouseleave="property: scale; startEvents: mouseleave; to: 1 1 1; dur: 200">
+                </a-cursor>
+            </a-entity>
+        </a-entity>
+    </a-scene>
 
-/* ---------- Dibujo ---------- */
-const mix=d=>`rgb(214,${Math.round(200-140*d)},${Math.round(172-132*d)})`;
-const max0=v=>Math.max(v,innerHeight>0?v:0);
+    <script>
+        let quakeInterval = null;
 
-function chart(){
- const w=Math.min(340,W*.46),h=Math.min(130,Hh*.2),X=W-w-16,Y=max0(14);
- x.fillStyle='rgba(255,255,255,.92)';x.strokeStyle='#12324a';x.lineWidth=3;
- x.beginPath();x.roundRect(X,Y,w,h,18);x.fill();x.stroke();
- const F='px Bricolage Grotesque,system-ui,sans-serif';
- x.fillStyle='#4f7088';x.font='700 12'+F;x.fillText('Intensidad del sismo (Richter)',X+12,Y+20);
- x.fillStyle='#12324a';x.font='800 34'+F;x.textAlign='right';x.fillText(M.toFixed(1),X+w-12,Y+40);x.textAlign='left';
- const lv=M<2.5?'Calma':M<5?'Leve':M<6.5?'Moderado':M<8?'Fuerte':'Gigante';
- x.fillStyle=M<5?'#0fa597':M<6.5?'#e89400':'#ef4b24';x.font='800 15'+F;x.fillText(lv,X+12,Y+40);
- const px=X+12,py=Y+50,pw=w-24,ph=h-62;
- x.strokeStyle='rgba(18,50,74,.3)';x.setLineDash([4,4]);x.lineWidth=1;const y6=py+ph-ph*6/9;
- x.beginPath();x.moveTo(px,y6);x.lineTo(px+pw,y6);x.stroke();x.setLineDash([]);
- x.fillStyle='rgba(18,50,74,.55)';x.font='10'+F;x.fillText('fuerte',px+2,y6-3);
- const g=x.createLinearGradient(0,py+ph,0,py);g.addColorStop(0,'#1fc7b7');g.addColorStop(.55,'#ffb400');g.addColorStop(1,'#ef4b24');
- const Pt=(m,i)=>[px+pw*i/(HN-1),py+ph-ph*Math.min(9,m)/9];
- x.beginPath();x.moveTo(px,py+ph);hist.forEach((m,i)=>x.lineTo(...Pt(m,i)));x.lineTo(px+pw,py+ph);x.closePath();
- x.globalAlpha=.3;x.fillStyle=g;x.fill();x.globalAlpha=1;
- x.beginPath();hist.forEach((m,i)=>i?x.lineTo(...Pt(m,i)):x.moveTo(...Pt(m,i)));
- x.strokeStyle=g;x.lineWidth=3;x.lineJoin='round';x.stroke();
-}
+        function generarTexturasMagicas() {
+            const canvasVortex = document.getElementById('tex-vortex');
+            const ctxV = canvasVortex.getContext('2d');
+            const cx = 256, cy = 256;
 
-function scenery(){
- const gy=Hh*.73;
- x.fillStyle='#fff6a8';x.beginPath();x.arc(W*.6,Hh*.15,46,0,7);x.fill();
- x.fillStyle='#ffd23c';x.beginPath();x.arc(W*.6,Hh*.15,32,0,7);x.fill();
- x.fillStyle='rgba(255,255,255,.95)';
- [[.1,.3,1],[.45,.2,.8],[.78,.4,1.1]].forEach(([a,b,k])=>{
-  const cx=((a*W+T*14*k)%(W+240))-120,cy=Hh*b;
-  [[0,0,26],[28,-10,32],[60,0,26],[28,8,26]].forEach(([dx,dy,r])=>{x.beginPath();x.arc(cx+dx*k,cy+dy*k,r*k,0,7);x.fill()});
- });
- x.fillStyle='#7fd88c';x.beginPath();x.moveTo(0,gy);
- x.quadraticCurveTo(W*.18,gy-Hh*.2,W*.4,gy-Hh*.05);
- x.quadraticCurveTo(W*.62,gy-Hh*.2,W*.85,gy-Hh*.06);
- x.quadraticCurveTo(W*.95,gy-Hh*.1,W,gy-Hh*.04);
- x.lineTo(W,gy);x.fill();
- x.fillStyle='#4fc16e';x.beginPath();x.moveTo(0,gy);
- x.quadraticCurveTo(W*.25,gy-Hh*.08,W*.5,gy-Hh*.01);
- x.quadraticCurveTo(W*.75,gy-Hh*.1,W,gy-Hh*.01);
- x.lineTo(W,gy);x.fill();
-}
+            const grad = ctxV.createRadialGradient(cx, cy, 10, cx, cy, 250);
+            grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+            grad.addColorStop(0.3, 'rgba(255, 211, 42, 0.85)');
+            grad.addColorStop(0.65, 'rgba(255, 71, 87, 0.5)');
+            grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctxV.fillStyle = grad;
+            ctxV.fillRect(0, 0, 512, 512);
 
-function draw(){
- x.save();
- if(shake>0.2){
-  x.translate((Math.random()-.5)*shake*2,(Math.random()-.5)*shake*2);
- }
- const g=x.createLinearGradient(0,0,0,Hh);g.addColorStop(0,'#5cc8ff');g.addColorStop(.7,'#c9f0ff');g.addColorStop(1,'#eafaff');
- x.fillStyle=g;x.fillRect(-30,-30,W+60,Hh+60);
- scenery();
+            ctxV.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctxV.lineWidth = 4;
+            for (let i = 0; i < 6; i++) {
+                ctxV.beginPath();
+                for (let angle = 0; angle < Math.PI * 4; angle += 0.1) {
+                    const r = angle * 18;
+                    const x = cx + Math.cos(angle + (i * Math.PI / 3)) * r;
+                    const y = cy + Math.sin(angle + (i * Math.PI / 3)) * r;
+                    if (angle === 0) ctxV.moveTo(x, y);
+                    else ctxV.lineTo(x, y);
+                }
+                ctxV.stroke();
+            }
 
- const gy=Hh*.73,cx=W<760?W*.5:W*.42,sp=Math.min(40,Hh*.4/(N+1)),S=sp/HS,e=S*3;
- const bw=Math.min(W*.2,sp*4),tw=Math.min(W*.6,480),ty=gy-14,b=B[mode],tx=ug*e;
+            const canvasRunes = document.getElementById('tex-runes');
+            const ctxR = canvasRunes.getContext('2d');
+            ctxR.strokeStyle = '#ffd32a';
+            ctxR.lineWidth = 6;
+            ctxR.setLineDash([20, 15, 5, 15]);
+            ctxR.beginPath();
+            ctxR.arc(cx, cy, 220, 0, Math.PI * 2);
+            ctxR.stroke();
 
- // Suelo y mesa vibratoria
- x.fillStyle='#ffd98a';x.fillRect(-30,gy,W+60,Hh-gy+30);
- x.fillStyle='#f4b95a';x.fillRect(-30,gy,W+60,6);
- x.fillStyle='#4d7cc0';x.fillRect(cx-tw/2-10,ty+12,tw+20,gy-ty-12);
- x.strokeStyle='#6b7f93';x.lineWidth=7;x.beginPath();x.moveTo(cx-tw/2-70,ty+6);x.lineTo(cx-tw/2+tx,ty+6);x.stroke();
- x.fillStyle='#ff8a5c';x.fillRect(cx-tw/2+tx,ty,tw,12);
- x.fillStyle='#ffc93c';for(let k=0;k<tw/30;k++)x.fillRect(cx-tw/2+tx+k*30+6,ty+4,14,4);
+            for (let i = 0; i < 24; i++) {
+                const a = (i / 24) * Math.PI * 2;
+                const rx = cx + Math.cos(a) * 235;
+                const ry = cy + Math.sin(a) * 235;
+                ctxR.fillStyle = i % 2 === 0 ? '#ffffff' : '#ffd32a';
+                ctxR.beginPath();
+                ctxR.arc(rx, ry, i % 2 === 0 ? 5 : 3, 0, Math.PI * 2);
+                ctxR.fill();
+            }
+        }
 
- const by=ty-16,xb=cx+b.u[0]*e;
- if(!b.collapsed){
-  let ys=[by];for(let i=1;i<=N;i++)ys[i]=ys[i-1]-sp*(1-.35*Math.min(1,b.d[i]));
-  if(b.m==1){
-   const half=bw*.8,c=cx+tx;
-   x.fillStyle='#0fa597';x.beginPath();x.moveTo(c-half-14,ty);x.lineTo(c-half,ty);x.quadraticCurveTo(c,ty+22,c+half,ty);x.lineTo(c+half+14,ty);x.lineTo(c+half+14,ty-4);x.lineTo(c-half-14,ty-4);x.fill();
-   x.fillStyle='#fff';x.strokeStyle='#12324a';x.lineWidth=3;x.beginPath();x.arc(xb,ty-3,5,0,7);x.fill();x.stroke();
-   x.beginPath();x.moveTo(xb,ty-8);x.lineTo(xb,by);x.stroke();
-  }else{
-   x.fillStyle='#8a97a3';x.fillRect(cx+tx-bw*.6,by,bw*1.2,ty-by);
-  }
-  x.setLineDash([5,5]);x.strokeStyle='rgba(18,50,74,.35)';x.lineWidth=1.5;x.strokeRect(cx-bw/2,ys[N],bw,by-ys[N]);x.setLineDash([]);
+        // Construye una ventana 3D (marco + cristal translúcido) que vibra y cae con el temblor
+        function crearVentanaCayendo(x, yStart, z, rotY, delay) {
+            return `
+                <a-entity position="${x} ${yStart} ${z}" rotation="0 ${rotY} 0"
+                          animation__shake="property: rotation; from: 0 ${rotY} -10; to: 0 ${rotY} 10; dur: 90; dir: alternate; loop: true; delay: ${delay}"
+                          animation__fall="property: position; to: ${x} -2.2 ${z}; dur: 2200; easing: easeInQuad; loop: true; delay: ${delay + 500}">
+                    <!-- Marco de ventana -->
+                    <a-box width="1.1" height="1.4" depth="0.08" material="color: #5d4037; roughness: 0.7"></a-box>
+                    <!-- Cristal celeste translúcido -->
+                    <a-plane width="0.92" height="1.22" position="0 0 0.045" material="color: #81ecec; opacity: 0.55; transparent: true; roughness: 0.1"></a-plane>
+                    <!-- Travesaños -->
+                    <a-box width="0.92" height="0.05" depth="0.09" position="0 0 0.04" material="color: #4e342e"></a-box>
+                    <a-box width="0.05" height="1.22" depth="0.09" position="0 0 0.04" material="color: #4e342e"></a-box>
+                </a-entity>
+            `;
+        }
 
-  for(let i=1;i<=N;i++){
-   const xl=cx+b.u[i-1]*e,xu=cx+b.u[i]*e,d=Math.min(1,b.d[i]),y0=ys[i-1],y1=ys[i],hh=y0-y1;
-   const poly=()=>{x.beginPath();x.moveTo(xl-bw/2,y0);x.lineTo(xl+bw/2,y0);x.lineTo(xu+bw/2,y1);x.lineTo(xu-bw/2,y1);x.closePath()};
-   poly();x.fillStyle=mix(d);x.fill();
-   if(d>.02){poly();x.fillStyle=`rgba(239,75,36,${d*.55})`;x.fill()}
-   // Ventanas del piso
-   x.fillStyle='rgba(255,255,255,.65)';
-   const wCount=3,wg=bw/(wCount+1);
-   for(let w=1;w<=wCount;w++){
-    const wx=xl-bw/2+w*wg+(xu-xl)*.5;
-    x.fillRect(wx-4,y1+hh*.25,8,Math.max(4,hh*.45));
-   }
-   poly();x.strokeStyle='#12324a';x.lineWidth=2.5;x.stroke();
-   if(b.m==2){
-    x.strokeStyle='#ff6a3d';x.lineWidth=3;x.beginPath();x.moveTo(xl-bw/2+4,y0-1);x.lineTo(xu+bw/2-4,y1+1);x.stroke();
-    x.fillStyle='#ffc93c';x.beginPath();x.arc((xl+xu)/2,(y0+y1)/2,4,0,7);x.fill();x.strokeStyle='#12324a';x.lineWidth=1.5;x.stroke();
-   }
-   if(d>.25){
-    x.strokeStyle='rgba(255,255,255,.95)';x.lineWidth=1.8;
-    const c=b.cr[i],n=1+Math.floor(d*4),xm=(xl+xu)/2;
-    for(let k=0;k<n;k++){
-     const s=(k*.31+c[k%4]*.4)*bw-bw*.4;
-     x.beginPath();x.moveTo(xm+s,y0);x.lineTo(xm+s+7,(y0+y1)/2-4);x.lineTo(xm+s-5,(y0+y1)/2+3);x.lineTo(xm+s+4,y1);x.stroke();
-    }
-   }
-  }
- }
+        // Construye una figura humana estilizada (cabeza + torso + extremidades) que tambalea y cae al suelo
+        function crearPersonaCayendo(x, z, rotY, colorCamisa, delay) {
+            return `
+                <a-entity position="${x} 0.9 ${z}" rotation="0 ${rotY} 0"
+                          animation__wobble="property: rotation; from: -18 ${rotY} -14; to: 22 ${rotY} 16; dur: 140; dir: alternate; loop: true; delay: ${delay}"
+                          animation__topple="property: rotation; to: 85 ${rotY} 25; dur: 1300; easing: easeInCubic; loop: true; delay: ${delay + 700}"
+                          animation__drop="property: position; to: ${x} -1.1 ${z}; dur: 1300; easing: easeInCubic; loop: true; delay: ${delay + 700}">
+                    <!-- Cabeza -->
+                    <a-sphere radius="0.18" position="0 0.72 0" material="color: #ffccbc; roughness: 0.6"></a-sphere>
+                    <!-- Torso -->
+                    <a-cylinder radius="0.19" height="0.65" position="0 0.25 0" material="color: ${colorCamisa}; roughness: 0.7"></a-cylinder>
+                    <!-- Brazo izquierdo en alto por el susto -->
+                    <a-cylinder radius="0.06" height="0.55" position="-0.28 0.55 0" rotation="0 0 35" material="color: #ffccbc"></a-cylinder>
+                    <!-- Brazo derecho -->
+                    <a-cylinder radius="0.06" height="0.55" position="0.28 0.45 0" rotation="0 0 -25" material="color: #ffccbc"></a-cylinder>
+                    <!-- Piernas -->
+                    <a-cylinder radius="0.075" height="0.6" position="-0.1 -0.35 0" material="color: #2d3436"></a-cylinder>
+                    <a-cylinder radius="0.075" height="0.6" position="0.1 -0.35 0" material="color: #2d3436"></a-cylinder>
+                </a-entity>
+            `;
+        }
 
- // Escombros volando / caídos
- debris.forEach(d=>{
-  x.save();
-  x.translate(d.x,d.y);x.rotate(d.ang);
-  x.fillStyle='#c86d51';x.strokeStyle='#12324a';x.lineWidth=2.5;
-  x.beginPath();x.roundRect(-d.w/2,-d.h/2,d.w,d.h,4);x.fill();x.stroke();
-  x.fillStyle='rgba(255,220,130,.7)';x.fillRect(-d.w*.25,-d.h*.2,8,6);x.fillRect(d.w*.1,-d.h*.2,8,6);
-  x.restore();
- });
+        function activarEfectoTerremoto(activo) {
+            const eqContainer = document.querySelector('#earthquake-container');
+            const camRig = document.querySelector('#camera-rig');
+            const hud = document.querySelector('#instruction');
+            const bubble = document.querySelector('#felix-dialog');
 
- // Polvo y chispas
- particles.forEach(p=>{
-  const a=Math.max(0,p.life/p.maxLife);
-  if(p.kind==='dust'){
-   x.fillStyle=`rgba(235,225,210,${a*.75})`;
-   x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fill();
-  }else{
-   x.fillStyle=`rgba(255,140,30,${a})`;
-   x.beginPath();x.arc(p.x,p.y,Math.max(2,p.r*.4),0,7);x.fill();
-  }
- });
+            if (quakeInterval) {
+                clearInterval(quakeInterval);
+                quakeInterval = null;
+            }
 
- // Alerta roja de peligro inminente en base rígida
- if(mode===0 && !b.collapsed && M>=6.2 && b.dm>.42){
-  const warn=Math.min(.32,(b.dm-.42)*1.1)*(.6+.4*Math.sin(T*14));
-  const rg=x.createRadialGradient(W/2,Hh/2,W*.2,W/2,Hh/2,W*.7);
-  rg.addColorStop(0,'rgba(239,75,36,0)');rg.addColorStop(1,`rgba(239,75,36,${warn})`);
-  x.fillStyle=rg;x.fillRect(0,0,W,Hh);
- }
+            if (activo) {
+                hud.classList.add('quake-alert');
+                bubble.classList.add('quake-bubble');
 
- x.textAlign='center';
- x.fillStyle=b.collapsed?'#ef4b24':COL[mode];
- x.font='800 26px Bricolage Grotesque,system-ui,sans-serif';
- x.fillText(b.collapsed?MODES[mode]+' · ¡COLAPSÓ!':MODES[mode],cx,gy+36);
- x.fillStyle='#12324a';x.font='600 14px Bricolage Grotesque,system-ui,sans-serif';
- x.fillText(b.collapsed?'El exceso de rigidez concentró la fuerza y derribó la estructura.':INFO[mode],cx,gy+56,Math.min(W*.9,560));
- x.textAlign='left';
- x.restore();
- chart();
-}
+                // Ventanas y personas cayendo alrededor de la escena
+                eqContainer.innerHTML = `
+                    ${crearVentanaCayendo(-2.5, 4.2, -4.2, 20, 0)}
+                    ${crearVentanaCayendo(1.8, 4.8, -4.5, -15, 400)}
+                    ${crearVentanaCayendo(4.2, 3.8, -2.5, -55, 800)}
+                    ${crearVentanaCayendo(-4.2, 4.5, -2.0, 50, 1200)}
 
-let last=performance.now();
-function frame(t){
- const dt=Math.min(.033,(t-last)/1000);last=t;
- sim(dt);draw();
- requestAnimationFrame(frame);
-}
-requestAnimationFrame(frame);
-</script></body></html>
+                    ${crearPersonaCayendo(-1.8, -3.6, 15, '#e17055', 150)}
+                    ${crearPersonaCayendo(1.4, -3.4, -20, '#0984e3', 550)}
+                    ${crearPersonaCayendo(3.5, -2.8, -35, '#00b894', 950)}
+                    ${crearPersonaCayendo(-3.4, -2.6, 30, '#fdcb6e', 1350)}
+                `;
+
+                // Sacudida constante sutil de la cámara
+                quakeInterval = setInterval(() => {
+                    const dx = (Math.random() - 0.5) * 0.08;
+                    const dy = 1.6 + (Math.random() - 0.5) * 0.08;
+                    const dz = (Math.random() - 0.5) * 0.08;
+                    camRig.setAttribute('position', `${dx.toFixed(3)} ${dy.toFixed(3)} ${dz.toFixed(3)}`);
+                }, 50);
+            } else {
+                hud.classList.remove('quake-alert');
+                bubble.classList.remove('quake-bubble');
+                eqContainer.innerHTML = '';
+                camRig.setAttribute('position', '0 1.6 0');
+            }
+        }
+
+        function crearHTMLPortal(target, name, dialogMsg, pos, rot, colorHex) {
+            return `
+                <a-entity position="${pos}" rotation="${rot}"
+                          animation="property: position; dir: alternate; dur: 2500; easing: easeInOutSine; loop: true; to: ${pos.split(' ')[0]} ${parseFloat(pos.split(' ')[1]) + 0.15} ${pos.split(' ')[2]}">
+                    
+                    <a-circle class="portal-hitbox" 
+                              data-target="${target}" 
+                              data-name="${name}" 
+                              data-felix="${dialogMsg}"
+                              radius="1.15" 
+                              material="opacity: 0; transparent: true; side: double">
+                    </a-circle>
+
+                    <a-circle radius="0.95" 
+                              material="src: #tex-vortex; color: ${colorHex}; transparent: true; side: double; shader: flat"
+                              animation="property: rotation; to: 0 0 -360; loop: true; dur: 6000; easing: linear">
+                    </a-circle>
+
+                    <a-plane width="2.4" height="2.4" 
+                             position="0 0 0.02"
+                             material="src: #tex-runes; transparent: true; side: double; shader: flat"
+                             animation="property: rotation; to: 0 0 360; loop: true; dur: 14000; easing: linear">
+                    </a-plane>
+
+                    <a-torus radius="0.98" radius-tubular="0.025" 
+                             material="color: #ffd32a; emissive: #ffa801; emissiveIntensity: 0.8; metalness: 0.6; roughness: 0.2">
+                    </a-torus>
+
+                    <a-entity position="0 1.35 0">
+                        <a-plane width="2.2" height="0.38" material="color: #0f1423; opacity: 0.85; transparent: true"></a-plane>
+                        <a-text value="${name}" align="center" position="0 0 0.02" scale="1.1 1.1 1.1" color="#ffd32a"></a-text>
+                    </a-entity>
+                </a-entity>
+            `;
+        }
+
+        function actualizarEscena(currentImage) {
+            const container = document.querySelector('#portals-container');
+            let html = '';
+
+            if (currentImage === '1.webp') {
+                activarEfectoTerremoto(false);
+                html += crearHTMLPortal(
+                    '2.webp', 
+                    'Ir a Terremoto Volcánico (2)', 
+                    '¡¡Lo reparé!! ¡Cuidado, aquí hay un terremoto! ¡Las ventanas y la gente están cayendo!',
+                    '3 1.6 -3.5', 
+                    '0 -35 0', 
+                    '#ff4757'
+                );
+            } else if (currentImage === '2.webp') {
+                activarEfectoTerremoto(true);
+                html += crearHTMLPortal(
+                    '1.webp', 
+                    'Volver a Playa Ruinas (1)', 
+                    '¡Vamos a la Playa de las Ruinas antes de que caiga otra ventana! ¡Rápido al portal!',
+                    '-3.2 1.6 -3.2', 
+                    '0 40 0', 
+                    '#1e90ff'
+                );
+                html += crearHTMLPortal(
+                    '3.webp', 
+                    'Ir a Costa en Temblor (3)', 
+                    '¡El temblor sigue fuerte en la Costa! ¡Agárrate bien mientras cruzamos!',
+                    '3.2 1.6 -3.2', 
+                    '0 -40 0', 
+                    '#ffa502'
+                );
+            } else if (currentImage === '3.webp') {
+                activarEfectoTerremoto(true);
+                html += crearHTMLPortal(
+                    '2.webp', 
+                    'Volver a Terremoto Volcánico (2)', 
+                    '¡Regresamos al sector del volcán! ¡Mantén la vista firme en el portal para estabilizarlo!',
+                    '-3 1.6 -3.5', 
+                    '0 35 0', 
+                    '#ff4757'
+                );
+            }
+
+            container.innerHTML = html;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            generarTexturasMagicas();
+            actualizarEscena('1.webp');
+
+            const container = document.querySelector('#portals-container');
+            const sky = document.querySelector('#sky-sphere');
+            const instruction = document.querySelector('#instruction');
+            const felixText = document.querySelector('#felix-text');
+
+            container.addEventListener('click', (evt) => {
+                const hitbox = evt.target.closest('.portal-hitbox');
+                if (!hitbox) return;
+
+                const targetImage = hitbox.getAttribute('data-target');
+                const targetName = hitbox.getAttribute('data-name');
+                const nuevoDialogo = hitbox.getAttribute('data-felix');
+
+                if (targetImage && sky) {
+                    sky.setAttribute('src', targetImage);
+                    instruction.innerText = `🌌 Realidad actual: ${targetName} 🌌`;
+                    instruction.style.color = "#fffa65";
+                    felixText.innerText = nuevoDialogo;
+                    actualizarEscena(targetImage);
+                }
+            });
+
+            container.addEventListener('fusing', (evt) => {
+                if (evt.target.closest('.portal-hitbox')) {
+                    instruction.innerText = "🔨✨ Repara Félix está abriendo el portal... ✨🔨";
+                    instruction.style.color = "#2ed573";
+                }
+            }, true);
+
+            container.addEventListener('mouseleave', (evt) => {
+                if (evt.target.closest('.portal-hitbox')) {
+                    instruction.innerText = "✨ Apunta tu mirada al portal brillante para viajar de realidad ✨";
+                    instruction.style.color = "#fffa65";
+                }
+            }, true);
+        });
+    </script>
+</body>
+</html>
