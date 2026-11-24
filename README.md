@@ -1,5 +1,5 @@
 [readme.md](https://github.com/user-attachments/files/35348140/readme.md)
-# 🏗️ El edificio que no se cae — Con Felipe Repara Felix
+# 🏗️ El edificio que no se cae — Con Repara Felix
 
 Simulación educativa e interactiva sobre ingeniería sísmica chilena, inspirada en las investigaciones de **Juan Carlos de la Llera** (*Concurso Chile Re-Descubre*). El jugador experimenta en tiempo real durante **1 minuto** cómo distintas tecnologías de protección sísmica mantienen en pie un edificio de 10 pisos y protegen a sus habitantes durante terremotos de distinta magnitud.
 
