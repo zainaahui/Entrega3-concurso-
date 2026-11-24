@@ -1,5 +1,5 @@
 [readme.md](https://github.com/user-attachments/files/35348140/readme.md)
-# 🏗️ El edificio que no se cae — Con Felipe Repara Feliz
+# 🏗️ El edificio que no se cae — Con Felipe Repara Felix
 
 Simulación educativa e interactiva sobre ingeniería sísmica chilena, inspirada en las investigaciones de **Juan Carlos de la Llera** (*Concurso Chile Re-Descubre*). El jugador experimenta en tiempo real durante **1 minuto** cómo distintas tecnologías de protección sísmica mantienen en pie un edificio de 10 pisos y protegen a sus habitantes durante terremotos de distinta magnitud.
 
@@ -7,21 +7,17 @@ Simulación educativa e interactiva sobre ingeniería sísmica chilena, inspirad
 
 ## 🎬 Video de demostración
 
-> **Nota:** Si subes tu grabación `.mp4` a la carpeta `assets/demo.mp4` (o arrastras el video directamente al editor de GitHub), el reproductor se mostrará automáticamente. Si lo subiste a YouTube, utiliza el enlace con miniatura de más abajo.
-
 ### Opción 1: Reproductor de video directo (`.mp4` / GitHub)
 
 <div align="center">
+
+
   <video src="assets/demo.mp4" controls width="100%" poster="assets/preview.png">
     Tu navegador no soporta la reproducción directa de video. Puedes verlo en <a href="assets/demo.mp4">assets/demo.mp4</a>.
   </video>
 </div>
 
-### Opción 2: Enlace con miniatura (YouTube / Vimeo)
 
-[![Ver demostración de El edificio que no se cae](https://img.youtube.com/vi/REEMPLAZA_CON_TU_ID/maxresdefault.jpg)](https://www.youtube.com/watch?v=REEMPLAZA_CON_TU_ID "Haz clic para ver la demostración en video")
-
-* 🎥 **Demostración del juego (1 min):** [Ver video aquí](https://www.youtube.com/watch?v=REEMPLAZA_CON_TU_ID) *(reemplaza `REEMPLAZA_CON_TU_ID` por el identificador de tu video)*.
 * 🔬 **Contexto científico real:** [Sistema de protección sísmica como modelo de I+D — Juan Carlos de la Llera](https://www.youtube.com/watch?v=-X_EoVsu1ow).
 
 ---
