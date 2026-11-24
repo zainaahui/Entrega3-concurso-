@@ -1,411 +1,779 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multiverso 360 - Portales Mágicos y Terremoto</title>
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #000;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El edificio que no se cae · Juan Carlos de la Llera · Chile Re-Descubre</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin="anonymous"></script>
+<style>
+:root{--cu:#ef4b24;--tq:#0fa597;--am:#ffc93c;--ink:#12324a;--mut:#4f7088;--bg:#7fd6ff}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:'Bricolage Grotesque',system-ui,sans-serif}
+canvas#c{position:fixed;inset:0;width:100%;height:100%}
+.f{position:fixed}
+#ttl{top:max(14px,env(safe-area-inset-top));left:18px;max-width:min(360px,46vw);pointer-events:none;z-index:2}
+#ttl h1{font-size:clamp(22px,3.2vw,38px);font-weight:800;line-height:1;color:#12324a;text-shadow:0 3px 0 #fff}
+#ttl p{font-size:13px;color:var(--mut);margin-top:6px}
+.hud-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+#clock{display:inline-block;background:#fff;color:#ef4b24;border:3px solid #ef4b24;border-radius:14px;padding:2px 14px;font-size:clamp(22px,2.8vw,32px);font-weight:800;font-variant-numeric:tabular-nums;box-shadow:0 3px 0 rgba(18,50,74,.2)}
+.pill{background:rgba(255,255,255,.92);border:3px solid #12324a;border-radius:14px;padding:4px 10px;font-size:13px;font-weight:800;color:#12324a;box-shadow:0 3px 0 rgba(18,50,74,.2)}
+.pill b{color:#ef4b24}
+#alertBanner{margin-top:8px;display:inline-block;background:#ef4b24;color:#fff;border:3px solid #12324a;border-radius:12px;padding:4px 12px;font-size:13px;font-weight:800;letter-spacing:.4px;box-shadow:0 4px 0 #12324a;animation:pulseAlert .5s infinite alternate}
+@keyframes pulseAlert{from{transform:scale(1)}to{transform:scale(1.06)}}
+#timer{top:0;left:0;height:8px;background:linear-gradient(90deg,#35d3c4,#ffc93c,#ef4b24);width:0;z-index:4}
+#pick{bottom:calc(12px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;width:max-content;max-width:96vw;z-index:3}
+button{font:inherit;font-weight:700;font-size:15px;color:var(--ink);background:#fff;border:3px solid #12324a;border-radius:18px;box-shadow:0 4px 0 #12324a;padding:8px 14px;cursor:pointer;text-align:center;line-height:1.15;transition:transform .1s}
+button small{display:block;font-size:11px;font-weight:400;color:var(--mut)}
+button:hover{transform:translateY(-2px)}button:active{transform:translateY(3px);box-shadow:0 1px 0 #12324a}button:focus-visible,input:focus-visible{outline:3px solid var(--am);outline-offset:2px}
+button.on{background:#12324a;color:#fff}button.on small{color:#cfe6f5}
+button.gold{background:linear-gradient(180deg,#ffe866,#ffb703);color:#12324a}
+button.big{background:var(--am);color:#12324a;border-color:#12324a;font-size:19px;font-weight:800;padding:14px 28px;margin-top:18px}
+input[type=range]{width:110px;accent-color:var(--cu)}
+#mini{font-size:12px;color:#12324a;font-weight:700;background:rgba(255,255,255,.8);padding:6px 10px;border-radius:14px;border:2px solid #12324a}
+#pip{left:14px;bottom:calc(84px + env(safe-area-inset-bottom));width:176px;border-radius:16px;overflow:hidden;border:4px solid #fff;box-shadow:0 6px 16px rgba(18,50,74,.3);background:#000;z-index:3}
+#pip canvas{display:block;width:100%;height:auto}
+#pip div{font-size:11px;padding:4px 8px;background:#12324a;color:#fff}
+#guide{right:12px;bottom:calc(74px + env(safe-area-inset-bottom));display:flex;align-items:flex-end;gap:8px;pointer-events:none;max-width:calc(100vw - 24px);z-index:3}
+#say{background:#fff;color:#12324a;border:4px solid #ffc93c;font-weight:700;font-size:clamp(14px,1.6vw,17px);line-height:1.3;padding:12px 16px;border-radius:20px 20px 4px 20px;max-width:min(310px,50vw);box-shadow:0 6px 20px rgba(0,0,0,.35);margin-bottom:84px}
+#felipe{width:clamp(112px,14vw,168px);height:auto;flex:none;transform-origin:50% 100%;animation:bob 2.4s ease-in-out infinite;filter:drop-shadow(0 8px 10px rgba(18,50,74,.45))}
+#felipe.jump{animation:jp .6s ease-out 1}
+#felipe.hammer{animation:hm .45s ease-out 1}
+#felipe.sh{animation:sh .16s linear infinite}
+@keyframes bob{50%{transform:translateY(-8px) rotate(-2deg)}}
+@keyframes jp{40%{transform:translateY(-28px) scale(1.07)}}
+@keyframes hm{30%{transform:translateY(-18px) rotate(-10deg) scale(1.08)}70%{transform:rotate(12deg) scale(1.04)}}
+@keyframes sh{25%{transform:translate(5px,0) rotate(3.5deg)}75%{transform:translate(-5px,0) rotate(-3.5deg)}}
+.ov{inset:0;background:rgba(18,50,74,.65);display:flex;align-items:center;justify-content:center;padding:18px;z-index:5;backdrop-filter:blur(3px)}
+.card{background:#fffaf0;color:#12324a;border:5px solid #12324a;box-shadow:0 8px 0 #12324a;border-radius:28px;padding:clamp(18px,3vw,32px);max-width:580px;text-align:center}
+.card h2{font-size:clamp(26px,4vw,40px);font-weight:800;line-height:1.05}
+.card p{color:var(--mut);margin-top:8px;line-height:1.4}
+.hero-badge{width:110px;height:auto;margin:0 auto 6px;display:block;filter:drop-shadow(0 4px 6px rgba(18,50,74,.3))}
+.rule{display:grid;grid-template-columns:auto 1fr;gap:12px;text-align:left;align-items:center;margin-top:12px;font-size:15px}
+.rule b{font-size:28px;width:44px;text-align:center}
+.res{margin:14px 0;text-align:left}.res div{display:grid;grid-template-columns:135px 1fr 56px;gap:8px;align-items:center;margin:7px 0;font-size:15px}
+.res i{display:block;height:12px;border-radius:6px}
+.hide{display:none!important}
+@media(max-width:700px){#pip{width:116px;bottom:calc(154px + env(safe-area-inset-bottom))}#say{margin-bottom:28px}}
+@media(prefers-reduced-motion:reduce){#felipe{animation:none}}
+</style></head><body>
+<canvas id="c"></canvas><div id="timer" class="f"></div>
+<div id="ttl" class="f">
+  <h1>El edificio que no se cae</h1>
+  <p>Mesa vibratoria del ingeniero chileno Juan Carlos de la Llera</p>
+  <div class="hud-row">
+    <div id="clock">1:00</div>
+    <div class="pill">Integridad: <span id="hpStat">100%</span></div>
+    <div class="pill">Caídas: <b id="fallStat">0</b></div>
+  </div>
+  <div id="alertBanner" class="hide">⚠️ ¡TERREMOTO FUERTE! ¡CUIDADO CON LAS VENTANAS!</div>
+</div>
+<div id="pip" class="f"><canvas id="mc" width="480" height="360"></canvas><div id="st">Cámara apagada</div></div>
+<div id="guide" class="f"><div id="say">¡Hola! Soy Felipe Repara Feliz.</div>
+<img id="felipe" src="" alt="Felipe Repara Feliz, guía del juego"></div>
+<div id="pick" class="f">
+  <div id="modes" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"></div>
+  <button id="repBtn" class="gold" title="Reparar grietas con el martillo dorado (Tecla R)">🔨 Reparar<small>Tecla R</small></button>
+  <label id="mini">Sismo: <input id="sl" type="range" min="0" max="9" step="0.1" value="0" aria-label="Intensidad manual"></label>
+  <button id="snd" aria-pressed="true">Sonido: sí</button>
+</div>
+<div id="intro" class="ov f"><div class="card">
+  <img id="introHero" class="hero-badge" src="" alt="Felipe Repara Feliz">
+  <h2>El edificio que no se cae</h2>
+  <p><strong>Felipe Repara Feliz</strong> te invita a poner a prueba cómo los ingenieros chilenos protegen los edificios y a sus vecinos de los terremotos. ¡Dura 1 minuto!</p>
+  <div class="rule"><b>✋</b><span><strong>Mano derecha:</strong> ciérrala para calma, ábrela para desatar un sismo fuerte.</span></div>
+  <div class="rule"><b>☝✌</b><span><strong>Mano izquierda:</strong> 1 dedo = base rígida, 2 = aislación, 3 = disipadores.</span></div>
+  <div class="rule"><b>🪟</b><span><strong>¡Cuidado en sismos fuertes!</strong> Los vecinos se asoman por las ventanas y pueden caer si el edificio se sacude demasiado.</span></div>
+  <p style="font-size:13px">Sin cámara puedes usar el deslizador, los botones y la tecla <strong>R</strong> para reparar.</p>
+  <button class="big" id="go">¡Empezar!</button>
+</div></div>
+<div id="end" class="ov f hide"><div class="card"><h2>¡Tiempo!</h2><p id="msg"></p><div class="res" id="res"></div><p id="fallSummary" style="font-weight:700;color:#12324a;margin-bottom:6px"></p><p style="font-size:13px">Los aisladores y disipadores que investiga Juan Carlos de la Llera ayudan a que edificios y hospitales de Chile sigan en pie y protejan vidas.</p><button class="big" id="again">Jugar de nuevo</button></div></div>
+<script>
+/* ---------- Generador de Assets de Alta Calidad: Felipe Repara Feliz (4 poses) ---------- */
+function buildFelipeAssets(){
+ const svgToUri=s=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s.trim());
+ const defs=`<defs>
+  <linearGradient id="capG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2979e8"/><stop offset="100%" stop-color="#0e3b85"/></linearGradient>
+  <linearGradient id="visorG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#17499c"/><stop offset="100%" stop-color="#09214d"/></linearGradient>
+  <linearGradient id="shirtG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#69b8ff"/><stop offset="60%" stop-color="#3b8ee0"/><stop offset="100%" stop-color="#2268b5"/></linearGradient>
+  <linearGradient id="jeansG" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#163966"/><stop offset="50%" stop-color="#24538f"/><stop offset="100%" stop-color="#112b4d"/></linearGradient>
+  <linearGradient id="skinG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffd5be"/><stop offset="100%" stop-color="#f2aa88"/></linearGradient>
+  <linearGradient id="goldG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff699"/><stop offset="45%" stop-color="#ffc928"/><stop offset="100%" stop-color="#d97706"/></linearGradient>
+  <linearGradient id="gloveG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#deb16b"/><stop offset="100%" stop-color="#a87632"/></linearGradient>
+  <filter id="goldGlow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ </defs>`;
+ const baseBody=(mood)=>{
+  const armAngle = mood==='repair' ? 'rotate(36 86 156)' : mood==='panic' ? 'rotate(-16 86 156)' : 'rotate(0 86 156)';
+  const leftArm = mood==='panic'
+   ? `<path d="M168 156 Q204 128 184 92" fill="none" stroke="url(#skinG)" stroke-width="17" stroke-linecap="round"/><ellipse cx="182" cy="88" rx="14" ry="12" fill="url(#gloveG)" stroke="#5c3d14" stroke-width="2.5"/>`
+   : `<path d="M168 156 Q202 182 178 206" fill="none" stroke="url(#skinG)" stroke-width="17" stroke-linecap="round"/><ellipse cx="176" cy="208" rx="14" ry="13" fill="url(#gloveG)" stroke="#5c3d14" stroke-width="2.5"/>`;
+  const brows = mood==='panic'
+   ? `<path d="M106 96 Q117 103 125 99" fill="none" stroke="#4a2511" stroke-width="4.5" stroke-linecap="round"/><path d="M141 99 Q149 103 160 96" fill="none" stroke="#4a2511" stroke-width="4.5" stroke-linecap="round"/>`
+   : mood==='wow'
+   ? `<path d="M105 90 Q117 81 126 88" fill="none" stroke="#4a2511" stroke-width="4.5" stroke-linecap="round"/><path d="M140 88 Q149 81 161 90" fill="none" stroke="#4a2511" stroke-width="4.5" stroke-linecap="round"/>`
+   : `<path d="M106 94 Q117 88 126 93" fill="none" stroke="#4a2511" stroke-width="4.5" stroke-linecap="round"/><path d="M140 93 Q149 88 160 94" fill="none" stroke="#4a2511" stroke-width="4.5" stroke-linecap="round"/>`;
+  const mouth = mood==='panic'
+   ? `<path d="M118 134 Q126 128 134 134 Q142 140 150 133" fill="none" stroke="#7a2e22" stroke-width="3.5" stroke-linecap="round"/>`
+   : mood==='wow'
+   ? `<ellipse cx="134" cy="134" rx="10" ry="12" fill="#8f291d" stroke="#5e170f" stroke-width="2"/><path d="M128 139 Q134 135 140 139" fill="#ff7b7b"/>`
+   : mood==='repair'
+   ? `<path d="M116 129 Q134 146 152 129 Z" fill="#fff" stroke="#7a2e22" stroke-width="2.5" stroke-linejoin="round"/>`
+   : `<path d="M115 129 Q134 144 153 129" fill="none" stroke="#7a2e22" stroke-width="3.5" stroke-linecap="round"/><path d="M113 127 Q116 130 114 132" fill="none" stroke="#7a2e22" stroke-width="2.5" stroke-linecap="round"/><path d="M155 127 Q152 130 154 132" fill="none" stroke="#7a2e22" stroke-width="2.5" stroke-linecap="round"/>`;
+  const sweat = mood==='panic'
+   ? `<path d="M174 96 C179 105 179 112 174 112 C169 112 169 105 174 96 Z" fill="#5ce1ff" stroke="#13698a" stroke-width="1.5"/><path d="M92 104 C96 111 96 117 92 117 C88 117 88 111 92 104 Z" fill="#5ce1ff" stroke="#13698a" stroke-width="1.5"/>`
+   : '';
+  const sparks = (mood==='repair'||mood==='wow')
+   ? `<g fill="#fff380" stroke="#f59e0b" stroke-width="1.2">
+       <polygon points="36,34 40,44 50,48 40,52 36,62 32,52 22,48 32,44"/>
+       <polygon points="98,22 100,28 106,30 100,32 98,38 96,32 90,30 96,28"/>
+       <circle cx="24" cy="82" r="4"/><circle cx="92" cy="64" r="3.5"/>
+      </g>`
+   : `<g fill="#fff59d"><polygon points="38,32 41,40 49,43 41,46 38,54 35,46 27,43 35,40"/></g>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 330">${defs}
+   <ellipse cx="132" cy="316" rx="54" ry="9" fill="rgba(18,50,74,.25)"/>
+   <!-- Piernas y botas -->
+   <path d="M104 216 L98 286 L120 286 L128 228 L138 286 L160 286 L154 216 Z" fill="url(#jeansG)" stroke="#0d2340" stroke-width="3" stroke-linejoin="round"/>
+   <rect x="95" y="280" width="27" height="9" rx="3" fill="#9fb6cf" stroke="#0d2340" stroke-width="2.5"/>
+   <rect x="136" y="280" width="27" height="9" rx="3" fill="#9fb6cf" stroke="#0d2340" stroke-width="2.5"/>
+   <path d="M84 306 Q84 290 102 289 L121 289 L122 308 L84 308 Z" fill="#c98a38" stroke="#5c380d" stroke-width="2.5"/>
+   <rect x="82" y="306" width="42" height="7" rx="3" fill="#f3d6a4" stroke="#5c380d" stroke-width="2"/>
+   <path d="M135 289 L155 289 Q170 290 170 306 L135 308 Z" fill="#c98a38" stroke="#5c380d" stroke-width="2.5"/>
+   <rect x="133" y="306" width="40" height="7" rx="3" fill="#f3d6a4" stroke="#5c380d" stroke-width="2"/>
+   <!-- Brazo derecho con Martillo Dorado -->
+   <g transform="${armAngle}">
+     <path d="M94 156 Q68 122 64 84" fill="none" stroke="url(#skinG)" stroke-width="17" stroke-linecap="round"/>
+     <g filter="url(#goldGlow)">
+       <rect x="55" y="36" width="13" height="58" rx="5" transform="rotate(-14 61 65)" fill="url(#goldG)" stroke="#9a5204" stroke-width="2"/>
+       <path d="M36 30 L74 22 C84 21 90 30 86 38 L78 34 L73 41 L64 36 L40 42 Z" fill="url(#goldG)" stroke="#9a5204" stroke-width="2.2" stroke-linejoin="round"/>
+       <rect x="33" y="27" width="12" height="17" rx="3" transform="rotate(-12 39 35)" fill="#fff275" stroke="#9a5204" stroke-width="2"/>
+     </g>
+     <ellipse cx="64" cy="78" rx="14" ry="15" fill="url(#gloveG)" stroke="#5c3d14" stroke-width="2.5"/>
+     <path d="M53 74 H74 M53 80 H74" stroke="#5c3d14" stroke-width="2" stroke-linecap="round"/>
+     ${sparks}
+   </g>
+   <!-- Torso camisa azul -->
+   <path d="M92 146 L168 146 L162 214 L98 214 Z" fill="url(#shirtG)" stroke="#123a6b" stroke-width="3" stroke-linejoin="round"/>
+   <polygon points="122,146 134,166 146,146" fill="#fff"/>
+   <polygon points="116,145 134,164 122,172 108,154" fill="#7ac4ff" stroke="#123a6b" stroke-width="2"/>
+   <polygon points="152,145 134,164 146,172 160,154" fill="#7ac4ff" stroke="#123a6b" stroke-width="2"/>
+   <!-- Insignia Felipe -->
+   <ellipse cx="151" cy="171" rx="13" ry="6.5" fill="#134587" stroke="#fff" stroke-width="1.3"/>
+   <text x="151" y="173.5" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="7" font-weight="800">Felipe</text>
+   <!-- Cinturón de herramientas -->
+   <rect x="93" y="205" width="74" height="15" rx="5" fill="#d4a353" stroke="#5c3d14" stroke-width="2.5"/>
+   <rect x="118" y="203" width="18" height="19" rx="3" fill="#e2e8f0" stroke="#334155" stroke-width="2.5"/>
+   <rect x="148" y="206" width="16" height="18" rx="4" fill="#b88435" stroke="#5c3d14" stroke-width="2"/>
+   <!-- Brazo izquierdo -->
+   ${leftArm}
+   <!-- Cabeza y Gorra -->
+   <ellipse cx="171" cy="113" rx="10" ry="13" fill="url(#skinG)" stroke="#b86b4b" stroke-width="2.5"/>
+   <ellipse cx="133" cy="110" rx="39" ry="37" fill="url(#skinG)" stroke="#b86b4b" stroke-width="3"/>
+   <ellipse cx="107" cy="121" rx="8" ry="5" fill="#f28b79" opacity=".55"/>
+   <ellipse cx="159" cy="121" rx="8" ry="5" fill="#f28b79" opacity=".55"/>
+   <!-- Ojos -->
+   <ellipse cx="120" cy="103" rx="8.5" ry="10" fill="#fff" stroke="#4a2511" stroke-width="2"/>
+   <ellipse cx="145" cy="103" rx="8.5" ry="10" fill="#fff" stroke="#4a2511" stroke-width="2"/>
+   <circle cx="121" cy="103" r="5" fill="#2573a6"/><circle cx="121" cy="103" r="2.6" fill="#0f172a"/><circle cx="119" cy="100.5" r="1.8" fill="#fff"/>
+   <circle cx="144" cy="103" r="5" fill="#2573a6"/><circle cx="144" cy="103" r="2.6" fill="#0f172a"/><circle cx="142" cy="100.5" r="1.8" fill="#fff"/>
+   ${brows}
+   <!-- Nariz característica -->
+   <ellipse cx="133" cy="116" rx="13" ry="9" fill="#f0896e" stroke="#b85d46" stroke-width="2"/>
+   <ellipse cx="130" cy="113" rx="6" ry="3" fill="#ffb8a6" opacity=".7"/>
+   ${mouth}
+   <!-- Cabello y Gorra Azul -->
+   <path d="M95 96 Q102 72 135 72 Q168 72 172 98 Q156 82 132 82 Q112 82 95 96 Z" fill="#6b381a"/>
+   <path d="M93 84 C92 46 168 42 174 86 C152 70 112 70 93 84 Z" fill="url(#capG)" stroke="#09214d" stroke-width="3"/>
+   <path d="M92 82 C98 54 156 50 168 78 C144 65 112 66 92 82 Z" fill="url(#visorG)" stroke="#3b82f6" stroke-width="2"/>
+   ${sweat}
+  </svg>`;
+ };
+ return {
+  idle:svgToUri(baseBody('idle')),
+  wow:svgToUri(baseBody('wow')),
+  repair:svgToUri(baseBody('repair')),
+  panic:svgToUri(baseBody('panic'))
+ };
+}
 
-        .magical-hud {
-            position: absolute;
-            top: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #fffa65;
-            background: rgba(15, 20, 35, 0.88);
-            border: 1px solid rgba(255, 211, 42, 0.55);
-            padding: 10px 26px;
-            border-radius: 30px;
-            font-size: 14px;
-            letter-spacing: 0.8px;
-            z-index: 10;
-            pointer-events: none;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.65), 0 0 15px rgba(255, 211, 42, 0.3);
-            backdrop-filter: blur(6px);
-            transition: all 0.3s ease;
-        }
+const IMG_SRC={
+ fac:"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCAH0AJYDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQEAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDqXvbdIml81WCddpyc+mK5m8uXmmY4EaFwdi8AHkZ9zx1qbVbiOS7lm3EIBtBJPOO9Y9y5lYlxhc/LH7c/ertOIfJPuCrAoY4GWPCg/wBfwqu+GA81zJ1+UcKDSOW2rkZHGAOlQOxbvRoBM0zLHlQFUjgKKjExYHjOePm5p7qxtUUDnnqfeo1jxuBkA78DNO5IkjuVPzEDGPSn3irui2Y5QZxSnyUz8pc47mnPLKpjyqj5OPpS6gRRoWYKqn6kU/yHAf7oAPOTTQzkLl+/rSH+LJzVagTIuxsiZd209B7VYvnBso/JBCoR973U/wCFVLXH2hB7Gr6QtcWckSYLGNCMnuD/AIZqKnwsum7SM+RLrUtLiguGjkgbadjs3OOmagh0OOGRXW3iV423qVkYYb16VfbQbuyt7cySQkyLuARjwAe/FNNncg5HT2ask4WNXzXHsJiyt5bYPXEgP8xV6x1S6tIpAkbFsjAIUjH5iuX0u21yO8mF6LjyQD5eXBHXt+FaMhu0LY83mqi4ilzHe+GdSlu7y7ieMhAqurFQDnOMcE10QzsXjvXE+A5JZL65ErMf3Ixkf7VducbB16+tYVLcxtB+6c5ek/2vcgMwO1ThGwegopNSX/ibzckHYvI+lFbwfuoxlucrOd53dh90f1/wqnJlshRnPerspy5yAcdu1VHOR/StDIiZ12xo5yV4wKTeFPyKB+tMusLFCR94kcevNSrC5PTA9TQhEdyD5CyFj0PH0pOACTU0oiMQjlk+UA8L3oE0SA+XFnjvVJCIwhk3bQeBxxU0sTz+VtBUBMEtUct3KTxtUY7CmTK6rETIzBlzyaNLgyZLVFCmWYDnoKMWa7iWZj2xmqw6DHrTCMk/SncRoiWBnCw243MCASAKc13OLR1hARjbNtK9dwUkfqKgtI3+0RNsfAOSdpq5bwOfIO35QFzk44PFTLVMpWTRzg1XxBcw27NeKyiMFFKLgA804arrKD5mt257x/4VZt4HjjWMo3yJt+76cVDKj7T8p6+lYKK7nQ5yHprepggNDat/30KsJrt1/wAtLSH8JyP5iqO0hxkY4pyD72elPkXcPaM1YdXyw3W6qT3Fwv8A9au28GX73ukZZyyJKyoTzgZ6ZrzmJQ559K9L8HxomgWxQAZ64+tZ1FZFQlzMh1U41Rz6xrRSauSNXkHbyU/maK0h8KIktTlEO75vWoJEA5dsD0HWrLL5a+XGScdWPeqT9fetDGwjy+WAUQAdNxqKR2b7zE+1SSo0kCIgy3c9hzSmKNT+8fJ9BVK4iKVVFkGwARu5/KmxRu4yqk5A7VM0iIg2RbgM4LUhupCOCF47ChWEAs5Gb5iF47nNPYRMkazSgBFwAvWq7uzHlmPHc1JJEqwQMowWTJp3QWJVa1VRhC/PenC8VN4SFRxVVASBj1p620zM2Iz078UxWLi3cryRrkLkgdPX603fJ5KkyMdqjv6U6K1lDxOQowQeTT0iUwqWlVQUzj8aHcdypeajPb3csaxxlVc4znoef61ENclAObeM/wDAjU9/ZSTXLvDhkZEwxON3y4/pVA6TeZOEU/RxWFom15F3+2zkbrMH6P8A/WpP7agyQ9kR9Cv+FVjpt8AMw5+hFQvpt8WJNs/4YoSiF5GmmqWZx/ojA/Ra7PwRM82iMXRlXz38sNwQm7ivP7eyuA43wuv1WvRfBxxoEanhlYgj0INZ1UktDSnJt6jNZXGoswHJjUYz7mik13/j9H/XMfzNFVD4SZbnMSj5iR0HrVN2Vc7RuPqelW5T5jAfw5wBVDBZnA5w2P5VqYjZmfyvMLfLzwKjxg/nU8kYaERu4Rec+ppDJEh+RCxz1NNB0EClrTaASdxwPwFIlo5++Qox3NKzymHzAQoGRgCoNxbBYk5Hc01ZCsWDFboRvlySOgpRNEqxjy2fA43f/XqqTz+FTykSQ2qxfO4ByF5xxRcQ77Y4HyIoG7+tNN1KzN8+OOwxSLazEZK457nHep47Bt53uq96rUNCtBKz3MKu7MN3OTxVpIwU2gdM9B7mljt7aOSJ3nBYHOFwKkgngSPJV2Ygg9euaVmDKN9BqjXtr9kNyYvJKlEzjcGOP0Iptwus2jmKb7QrjnacE4NW9W1+XTIbaaC3VlaRlIZscgAj+tZN34wu7y6aeWxiG4AYRj2GK5m2m0dMU5RTuWFv9QUgPI4/3kH+FOXVL3JHmqfrGKrR+JlP+tspQP8AZINSjW7CT78My+uYc/ypcy7D5Zdy1HqV423/AFR/4B/9eu18DLN/ZVzJMy5muXfCjgf5xXDw3+mschtp7bo2H9K7bwVdLLZXMMeCkchKkdwcVM2mtCop31J9eAN8u44/djB/E0UuvAfbI9w/5Z/1NFXB+6Zy3OSwVXLggkkgd8Zqo7kEqgCgdhVw8vk84OKplCXdj8qk8E1qZEcq/wCjGTvzzTdrMflBP0qVmiEeCC4BJ9qa87nphRntVITHiNvI2cDJJyx9sUyOO3jRVeTdhccUxk8yAuxJO7HJ9qijJMSN0ytCsJlozQoF2Q846mmm5mVIzhVVs4IGajEbsBtUnI9KsJC8kUCtHjYxyWI96rURX8+Vgcu2M9uKQnLnJz9easLaRop8yYA56VKiWSucsW46c0aiKURxJH9atxjepbHJLdPqakWS1QJ5duN2RyQKljnkjiACIMFh+tGlw1KmpRn+zhlSNsynkeoIrFmX5ZAQPunt7V0k8qvZyPcguqhWKgehx/WqHnacwbdC2MYPyH/GsZaNm0FdHngTGCM1uaACYZs5PzDqfatIHwo/UBfwkFXrCPQAr/Y5uCQWwzf1FZxdnqbSWhHCpZlUE49ia7rwLbLFY3MoyWklYsSScn/9VctGmmoQVuQD7t/9auq8E3EckGoW8TBkhmG1wc7sqD/MmlUatoKmmmXPEHFzER3j/rRSeIeJ4D1+Q/zoqobClucrIPKBAwzkkk9gTVCQlnO45wa0JV+YADOPSqbKqO7OwLMfujtWxiRSjNqQAS+SAAOelCwOQN2F/GntI6xFlAUdKgLFl+Y5+tC3B7Ev7pE2M5YZ520scscaqsUQAAwM0iY+zsWwPmGCfxqK2jeRFwpOR6Yp31JsSPcy4GGAx6CkdWNmkpdjliOv1qQWcjY3EKPUnNPCxiBYZZhsVuw5p2bFcpICQeO9Sjh+anzZx52qzc8ZzU321Uk/dQKMDHOKbDUrojMqlUYjPUKavLC8isUQkF3wTx3qsdQnO1fkAz2HNThpE3oJW+WRh6UtA1C5hddPuN+0DySeue+aw0jYRnKMDkjp7VuWrsu5SoYmNsFvoaz01WZj/qozx2JrKb10NKaVtTgijjqrD6g1saBnE3XqtaZ8WSIAJdPHPIPmf4irmn+I47svix27QP4wc/pWUW7m8tURQrvYKTXeeBEVNNudoG7zTk/hXKLqcDdbQ5z2K10vgeZ5pNSYRskBdCinHB289KdRtoUFZl7xKf3lsckfK39KKd4jXm2LcfK39KKIbBLc5e4JJIX5VP5mqMi7XIq/OvUk4A71TeQBjsHPdjWxgNaNntmRQMlupOMDFM8uGIBWkLEY4FL8zQM7NnBxioc5VSO+Ka3B7EyyBc+VEMA8k0efKQDux9KW3U+W42t8xGP1p0dq2AXYKKepOhVLFj8zE/U5qcRhrFCo+feR9eaf5VsnLSFjnkD/AOtSrNDGmUhYgNwTTsIq7GJOBn6VZW1meT5Y25HU8U83r4bYirmg3c5f7+OOwFPQNRn2CcsrEIoDDOWz/Kr0catIzSSKuZWyDWXLNJvIaRzz3arbxIJJQAAN3T8KTtcHexege2RowJAx2gYAHWs628aaRBaXEXky75Iyo2xrwcY9antEA8tj2Yd/euXk0q1W4ZSrEBj1Y+prGrG70NaTSLJ1fSLkATqCB2kjzipLf+xsk28kCFuu1sVxjvIsjAEYDED5R61oaNEl1JILhUYKoI+UDvWSWpu7WudvG8LW4hjSBgBgOFBb16103gqVEW7tyTv3B+nYivOYrGAEbYY8567a7bwBbul1dy7gEwECAcDA57+9OSaWootN6G54lPyWx/3v6UU7xEP3VuSCeT/SilF6BJanKztvkcHqpxj8Kospe4kCDKgAZ7Z5q/LH5ckrNyXbIUdhjFV5NzcE49hXQc5GFRYmR3wCcnb1pnmIigRRgAAAE04KvkvnAweKhjR3jQhT0FNPURJvlkR2EhXaR0HrxUEbF1BYknJ681bWLZG6syruIyT2xTIlto1A3tJ8xJxT16iIO3WrEY3WOxRl9/QD3pTcRJ/qoRkHqaBPOYTKNoXdjpQ7AIlpMQflA+pqcWLbwXkVRiqpnlIbMjcjscUZy/PP1p6C1LMllagFpLnLZyACB3qxE9ud5YO7eYex6YGKzT0J96vRkF2x3I7/AOyKdxFm2ljG0pAoAHc+9ZVzZxfapM3C7t7Z6eprRhRmQbUYnB/hrG1aNRqMuVGd5JyKzndl07amY/haFyWW/wCWJONoP9auab4cNnI7C5D71x9zGP1rkLhQLiUAdHb+daOgnE0oP9zv9awW51PY61NLkU5DqTnuDXS+DP3V3e2x5kAWX2weP5g1xMQJONxHPqa6/wACQKLq+lJJkwqkk54pzTtqTBq+hteIiRbwHH8R/lRS+IB/o0JHHzH+VFRHYp7nLTH97IvcEfqKrynDbiQo7Van2qzlPvE8saz5eJmXr8ua6DmFV152oWwepqOSZz3wPaprcZjkHPJGKb5BUZdlHHemrgyOKMSRSs3JAGPzqCLJUj0Yire+BEdQWYHkhabHcqi4hhVRnvTt3JIxDIw+VG6+lWYYZPsrQsoBL5yT9Kge6mbPzgc54FLGrS20krOxIboT9KbsGpOLOJdwknA+mKf/AKCjKWZm455JrPXq3FObJ2jP+cU7isaAntArCO3LZPBI/wAamiu3R5QsSD5w3X/ZFZsUbkHarHn0q/DDI0jDy2HKAn32ijUWhJDeSMAHOOv3V/xqhqU9ml/IJomLnDE7c5JA961IrM4Qkc5P8XpUNzDpTX6/bpYw4Chg020AYrKq7WbNKSu9DlpbjwyZHEsJD7ju/dv1/CrFi3h1pT9lOHI5GH6U/WtL0GXUpxYvF5eRgxT5Gcc9/XNQW2hQW8pkgmkORjDYI/SsU1c6WtDUj/soHKTYPuW/wre8H3MP9sXNtbsHjaBZCwOcNkjH5YrlPsTKchwee9dV4GRY766BxvKAj6VU7W0ZMb31Ru66N1pDz/H6e1FO1oA2sef7/wDSis09DRo5WYZkfHQYqi4jErPy74xjsBWhdHLMOi+grNl/4+No/u54+orpTOQcGkZWIO0L2FVsF0DE5PNWkVgjDIUtjk1CDDGm3cXxmnrcBsJCrLuP8P8AUVHbwSvuOxsFzgnjip1lLbhFGq4GeajaeU5y5HzduKehJJ9jbncygZp6CGKKSJpwVJyQOtU2YsTuJPPc1YtkDWdw2OQeKd0ImSSzRm2xl+O4/wAakS9RSvlwKMDvj0qggJZsDt2qxHbzNsKxPz7e1O4aFhr6ZtwGxefTNL50wkYiVhu2Nxgc4pq6fcMHyqrj1b/Cjlb5LaQquVQFs9OtGoh8XmSKCzsevUmuZ8Tac0uqK4kVQYE7HtkV2EEMKYU3GRuYcYrK120aW9RoRlPKABY4zyaiaWly6d7ux55OxhnkiKk7GxkNjNWdOdrify0eWI4JyHq/eeHtQkuJXSNCrMSP3gqTTNDv4LkPJAAu0jIcGsFa51XdixALqMZF7OQOxIP8xXV+Cmmk1vLFmRYvmZsZJJ9qwhY3PzZhOK6bwank6nKkg2s0YZQepAPP9KqailoRCUm9TptYA+yIcf8ALT+hop2qjNouP+en9DRWCNjlbkbWJfgHoPWs6WUhyFUKSOvc1oXeTIxPrWdJG73IYDCBcEn8K6jjGxrvEhYkkAEZqKNcpye5H5Gp18tQw3FsjB201pwi4ijVQM4quodB0SFS+FPK4o+y8kySIg3VHG7zFw0jDCE8cdKrj77g8kMKehJbZbRM5kZyD0FCzQKshitywHc1VwT+dW7NP3FwjhgW6YB9KdxD11Fw5KxoOKQXk7hRuA+gpkVjOxHygZHc1Zj09gELyIO3enqDIWmlO7dI5z/tGp1Rc7gBkxoSfxNPNpbKW8y5HHbI9KfE9sGcFnYBE24z6mhpiuRW4Kk44+Y1n65NMlzCI5XUeVn5T1+Y1sQzW2TthH3z97AqnrFvDcXMckkqRDytoUEf3jzUzstyoXb0OMu9V1GG6lRLyQKG4HBx+lS6frWovcKr3JZcHgov+Fadx4etLiZ5Pt+0sc4+U/1pbXwxHDKJEvt2O2wf41gmrnXryjk1K8IP70figroPCHn3GuiaZwfKgIACgdT/APWrMTRWUnEwI/3f/r1t+Gk+x62kbnJnhbbxgfKRn+dObjbQiClfU6nUBm2Az/H/AENFPuwTD/wP/GisEanIXZCOwxubP4CsudmMgDHO4E4rTulJlYAc1nzIolDSP90cKB611I5BkABEgP8Ad/rTBA7jpgc8mpRJjPloBgZ5qB5pHByx4J6cVXUXQmjiEO5nlVcrjn3oRrVN+N0hJBJx1qK3AZ2BGfkJ/SoU5llUc4I6fSgRbe7Rd3lwqKWOeeVJWUqAo5AFQ/ZpWz+7b8eKtW1vLEkyMF+cDnPTrVaiK/2mZnGZG6djilBLBM5P1qxHZRIwMs6g49qlVLFFXdIzYPYn+lPUWhTBxuqwg4QcZ8sf+hGrKSWQLbLfd05I/wAaEvDHIWSFQGiAHPTDH0oaAbHbMc8c78cCo9T0p7qSFt6oFUqdwOetWRqNy7HAUfNngZrnvFdzqXnWjW00ibkcNtOOjcVnO6WhdOzlqR+IPCH2e7V1ulYyoHwYsAdvX2rMtdDubedXPlOvPKms+61bUFuNt1fTtIoxlmLYqW11u+eRY0uVdj0DJWCvc6tLG0ttKrcoR9DXR+D7ZBrqO+SyQttyfXrXKxajf5/ex27f99LW74bv5G1uzG1VZi2dhLYGO+QKqUm1sTGKT3PRZgDHyP4qKcwBU9etFYmpxl42GKrwO59ay5+JFA/iBrUuF3HcThcdaz5XRXyqZbGAxrqRxsZEjfNgHlSBUa2wjDefIoyxOB2p6s8pILEAAnAqtnLP7MRTEWUaBSRGjOStJ9qKArHEijimWmPPyemD/I077PI7EquBgdeKq7uISW6mYsd+B7DFLbKZxMZGZiqgjJ+tPayI3F3VQBT4RBAXHn53KAcUO4rlRR83TtUo6DPrVhHs0K4jZjjuKk+2oijy4FHPqPWmIjt0ZmI2nt2NWEgkO0BGJEWTx/tVBPq9xG3yLGMjuCakhuJnWOQyEF4SCAAOhFDsBYjs5tzcAfNjk1leJoWR7VCNzbXOFyeMitFZJTI252bnPJqnrV3JAttsRDuZ85z2xSltoVC19Tg9XtpTeuyxSEEDkIfSo9OhdbyImNhz3U+ldDdeIbi1mKC3iYYBzuYUlt4nllkWNrSMZOM+YeP0rn15jrS90AvJFdD4SUDWE94z/MVQGr5bBtl/77/+tWhotzJda1YCKDYEZmc7uq7cY6epq5t2M4JX3PRFPX60Ui9TwOtFc5vc4u++/wADgDAHpWZOrNJGEBPXcR261rXoCvluTjpWXcSOGHYHpiuk42IqeWSWcAkEVGDBHnCl2JySe9LEoMmD6GotpZmCjPPb6VVxE0czuwRAq5H1qv8AaJSzK0h6DpxVi1hdXDEdBwKRbRA7PNKoygGB2p6iZXkOScnPHerFkoLSg4xs4pzfY1JyWfj3p0U8e8+Tb5wuTnFOwiCNGJXaCfoKnW1ndRiNuvce9PW/kG0KijApTeTsn3wOT0A9adg1Gy6TdTOAqoOO7/4VbtLGSNIYpJEysLZPPqKpTXE2eZ5On94ipoQrQwOeSVcEnn0obQrGh9lgR33XAzkdMVma/aeYbX7MSyqX3Fj3OKsrGQWKZHI6VW1qK7eGAW/mlg7Z2n2FTJ6FRtc5nUNBvp598YixtA5kxUFv4f1GOdHaKPaD2kFX9UtPEVqYpV+0JFIvy4dTkjrxVGG+1tJkWaW5CFsHcgx+eK57+8dSWhqJpt2HyYuP94VueHozb6vaGVdgcFBnucZx+lYY1C9DDM7fio/wrS0Q3N5rFgs82VSXzANoGSAf8a0nzW1M48tz0hRyetFGCGO00VzG7OLvDufI7jNZ1xGWKliFA5OetaVyTCEj4LhcFvcVl3WcoSc5NdSOV7gjxqflUueaa9y2SEAUA+lJD/rfwNNS3ld3YrtBIxu+lUIImaWVVd2IPvUbLtJA9KsRxRxMGaUbh2FAltQ33Gc475pksqSdevardipWVyyNgpgfKaGvQP8AVxKOMf5xUlnNNcSsoYKQmeBRp1ASKzmZl+UDPqcVZWwfY250XB+tU/Pl3gNI/B9aTJIO4k896rQRoGwtlkAuLsDjsQO9OiFnGYkMrPGqPjGevHoKoSY8xcehqa3GYosn+J/5Ci4jRF3aYbbE7HC9f/rmsnxPrj2EFvJbWykPIysGPsCOlW4E5YgE8A9Kp+JEIs4MqR++PUe1TNXViqbtK5gXvjG+u0hjktoFWLO0DIJz9T7VHF4iYj57Q/8AAHrI16PNzGSP4P61RtYwLiI46OP51ztWdjrTurnXxaxBIcNa3A/4AGrT0q/jj1C0mjV1IlVRvQr17c1jbMv05rS0W2jfUbPeoPz559cGrcLLclT12PUkO4kgjBAopI8AdugorA0OOv1ZrpQoyAWyew4rOnEQZdxLkHgDpWpqbbbgIOFLEY9etZU4+7gZOa6EczESR3cKgC56VBKzNncxP41PBG6uGIxj1prpCpPmSZ9hVokhtv8AXx8cbhUZBa4KoCflJ4571ZjlhV1EcW49iaab2RG2KirgU0SM+yzN0QjjvxV3T7eSCbedvKYxmqbXMx6uRx24oth504SRmYbSeTT0DUui2hBDSTKCT0GKeVsVVsyFj2wf8KzQMOFHYkVJjg89/wClMk0ZbmwhdSYGcEEcrn09TUtreRt5ckFuqr845x3HtWVcI8hQIjMfQKTV7TYJhBErQuCZGwCMdjRfQC4L2UsyhUUbQMjJqpr08RtonuVZwsuAAOmRVxLWYuzbBjaDywqh4jt5EtIQwBLTcBef4TUy1WpUPiOevbrRQ6/a7YkkcHys8fgaijuPDZK4gIbPH7phz+dUdat5jJHshkICnohPesxIJhIv7qQcjqh9awe51J+6dru0wEEhhn2apYJ7aK5tHtNxk89FAweQTg/pWW8TYGd34itLSEAvrLI/5aj+tVJK25CbuelR/iOBRSx9Rz2ornNjktTizdB3fAV2OMcnqP61mXE2wjYoAzjJrS1h83hI7ysv8A/ACsq5ieRVCj+IEk9hmulbHPJakSEySKrkkZqu3ErLjoAf51bVY43yz/MD0FM8yGMsY48sepaqIIrdWMqEKSM88U82k0txuC7V2sMsevNKLqVmAGFyfSmzvKr7WkY9R1xT0ETCyAx5koGRToVtoZA3nEtg9P8A61UeD78dasWAH2pAcYwf5VVxFpJbJMERFju7j/E1Ol5HtbZAoz649Kz9rbzsBPzdhmrMNvMVb923XuMdqLiLR1CUMm1EXgjuadFdTybHL4IlIwFHcGolsLhnTKqMg9WHpVqCylRURmQFpevPHBodxaDDLN8xMjEbOmcVV1i6eGxWRVUnzAPmyexrUSCJFIeZBmM/561T1y9sNOsklmYSoZVXCqDg4P8AhUz2Kp/Ectf+IJ7Ux7YYWDA9SwxioI/Fs5ODaRHJ7SNWrqXirR7jToLaKKTej5YmEAYwfessXuiTD51iB9WjxXPe7OtaI1RrLnGbdf8Avo/4U43kt0Io4oQjtNHhg/TDA+ntVBLjTnxsuIf++8fzq7byxRNC8bo4Rw2FYHPNU3HoSlI9MTqNwHSiiNxIquucMuRRWJozlNSQRXL+YA0gkcj0GSf6Vj3jtt3Fj1xitbWCZL1goJP2hgcdgCazLqJWXbI+BnJA710rYwe5Xix5yj3prRu8jbVJx/jUwkRTiOPJzjJqOW4k3FMhfoKpGYRWkm4FiBg+tTPFC0m6WZRyflFUyzOw3MTz3NLMojusKMAlhTVhFgGzTH3mP40+K4i8xVitwT+AqlglhjmrFojrcRuY22gnotO4rFj7fKPlCIhDdyaDfXDBvnA+iimmzlkkZlAALfxGrCadIAwZ0H509RaDGuJmMeZn/A47VLCN8ZZiSRKOSc9jTxZwJ5RluVUd+g7VPGLJQAkxdTKM7Tnt7Chi2K6oPMXj+Gq/iOCN9Kw6BgJUOD9DWqHsxIAI2Y7T1z61X1xYZ9OVdqxKHUliR6GplsVC/Meca7AtuITAPLznOO9ZSyTA8SH8hXaX+l2d2sYkvAgUnHzLz+dUh4asyTt1D9UP9awe51R2HJaxBVIjXGO4FTxWwkZIhhVeRVJVQDjI74rQGnoVQCcYAwOn+NLJbrZxm48zeISJCoGCcEVd1YhKVz0azGyCIeiYopLdt0MZUjBXIornZszndXxFcSJHkAyMSe5JOaxLv5Ynb0Nb2vIRdTNwArk/WsOV08sEpuPX5uxrojsYS3I0Rt6kLwCKR7Z3mZ2IVcYHPvSmV2YAHAJ7VXmOJypJPB6n3q9DMnEdsjDfJuIPQH/CnmW2EgcxFnyeWH+NU84b8asXKFpv3YLc9hmncQ4XpGNkSiiO6nllRAwXJ7Co1tZiAdmPqQKnt7SRHRyVBB6Zp6i0I5JplZlMrcN60BmbJZmP1OastaxFmaWdQc9BipkhsE3bpi/A7+/tTQjOn/1SYH6VZ0s5gk/2Zl/pVr/iXgR7omk5HXJHQ+9WIprcAmC0RAJFJ4A7gUdAGYHnfgar64hbSWwp++nb61o/bnEgxGoGG7+9VdWuw2nbp9xVWU4UfUc81L0Q47nCa9EVgg3qPvH+VYoRc/dH5V2N9faZsQ3VuzrnAym7H61TF54cJ5tSP+2J/wAaxk9TqgrIIQDFHx2H8qsrbo2N4BUuoI9sirUc2lFEKoQpAx8jdKW5ubBLWUwbvMVSU+Vvvdv1q29NjPl13PR4lCxRgdAuKKZZOZLOCRwQzRgke+KK5mbmD4mf9/cnJAViPxxWDPue2wgLMV4xW74iQRzXrSjILllXPUYFYfnu1mrDCgDtW8djGe4CFshmIUA55prJbiUyO7O2CMDoOajXkqCc9OtJcjbcbR3B4/KrRkSC4iQ/u4R170+S6mRtuFXn0qskMrHhG6+lW5reSVwRgcjkn2qhFdrmY9ZG/DiiDMlzErksC/OTU32JR/rJgBmnxJaROreaSwbjBp2ER3MYjndVACgincHdg9hVhri03OWjLse7D/GplvolLeXbqOPYd6BFRQzbNoJ54wKvW8cipICjDJXHy+4pBqUmyPbGgww9TT/tU8ySkso27W4X0Io0AspayGRcowzuHOKh1GzRtP2XDbEZl53Drmm/aLhphmVsc9OKzvEcBudElSSRyNyEc+jVMlpoOPxajNS0bSG0cSGbMwlGP34Bxz2rAbw9avzHNKPoQaxNRsktLdZULMS2ME1RW4ZeisPpIRWLTT1OtNNaHbrYbYkTfyoABI64pwgKoeQeRzWHaRSmCORbm4UsAcCQ8VfVrhEcCaVjjjc+efyq/esRaFz1e1kSWzgeMgqUBGPpRVTQ43j0i2SQgsqgEiisGbamR4rOZbtRywIUD8BxWJFCxsVUkLuB5PpzXQ+JsQy3Tp95xuJPb5QP6VzUOTZAkklQcZraOxhPckXyVGRlvwokuAjnZEA3cnrUQ5UH1p80bvcZRTjnJPTpVmY03MpP3tv0FJdF0dcuxDEdT6ipFtG/iYCnzRQOwMs/CsDhcdhVaklT+dOgP75D/tirO6yX+Fm5pRdRLxHAMlhjOB3oENuULXEmwEj2GamS3mYnbC33f7tPkvZY2dPLRT+NKL+4Yn5gPl7LT0EOSxuDGnyY+YdWFWlspo45S23kAcHp8wqmbu4KKDM/3uxxTo2aXzfMdmxGSMsfWgDSNhtlUtMo+YjpVPWoFOlOkcokdmUYHbnrT3UbhgD7xqtqjMmmTFWII24wf9qlJ3Wg47nLajpFzc2qxxhM7geWxWX/AMI3qOeEiP8A20FaOoXV1HZmSO5kRgw5DVlLq+pA5+3S/mP8KxludULW0N63025itIo9g3gAEhhVgWc6xvujHC56jtVO0v7t7aNmuHLEck45q39punjk/fN909hVa2I9256NpciS6fBJGdyMgYEdwRRUWhwi30e0iUkhIwAT9KKwe5sZ/iyJpHnVByUHfpxXNxCMWIAYuTnIHHNdT4pJ8x1HTyx+PFcpY4+x89if51tHYynuR2FyTbfKoyGI5+tT3EkqvgsfwqppkTtbnA6O3X61oToHfc7BRVmTKTEk8nPTvmrF0gVFIAGVU/pRi2Xq5Y+1SPcRKf8AVFsYwTTEUQCTwCeasRQyllIjbAYHp71Ib9s4VFHNIbyY5AYDJ7CnoSW7i3llmkZFwpA6nFSRadJnl0GVPrVW5kmjkZTK549cUgLMeWJ+U9TRoBoCwRYwZLhRhvQev1p7QWkKTFbjcfLxjIP8qzlx5PTvVmLLGXI/5Zmi4jRc2SuMl2+b39KqasIJtMkSNQnzLuZj23U913sD7gdfaoby2aTTpo025YjGTx94UpPQqG5ztxpttcW/lvdhVJHOVqovhuyJ41E/+OVoah4duG0h5TJCBvVdpye9c42g3YPCwt9DWLdzpjsdHDo8UcKot0CF4zgc/rVldPCxuomB3LjOKx7Wzljs1R0AdR0FTpb/ACsXTnb6VXTch2vseh+H7gXeiWky8BoxweoopdAjji0W0WNQFCDgUVi9zYg8TIDKzMcL5Y/HiuRspP8ARMIvRjya63xOP3hB/wCeY/rXIWAP2Zzjjca2jsZVNyHTpH8p8ngO3Aqe7Ta4xzwKg0xUKS7nAxI3FXJZIWYFgXP0q9TJlQVblQuiBASdq9BTftCoPkiA4p8lxMqg/KAwB4FOyERrazkkbcDPc1MthJyWdRg+5qu1xMSR5jDnscUwsxzuYn6mndEmtLbxySM0syrx2x/WnJFYjaTOSccgH2qndRrHJtRQAV9KSMcL1zg5zRcDRBsBCcKzc8cGpRJAqTLHa8+W2CcGs1CPKwCOoq4rpuYhlIKMARzk4NFxFttRCAbLdR8wPX2+lUtevbx9GuTb7I5F2sp/4EKma3mKqRE56dvaotWt5V0m5LIV4A5/3hSlqhx+JHD3Ws64lmyTXeLcMCVCjrmqSa/dA8zofrFV/UInawlGwk46Y965/wCzuDzGw/4CaykknodUG2tToLfU7+aHzUFuydjtIq5bX1zKo86OFM+7ZH6VR0uPZYjcDnJwMVoQgtyRzg0+VWE5O53fg6R5NEjLBhycAjoKKn8NY/se3x/cH8qKxe5ohfErLvDEZPljA/OuKtSWtZA3QMTjtXZeIwTIoAzmIcfia4yHC2s+4nliMDrzWsdjOe5X0sjy5fXef5VenXBXAzwOPwqppbIomUoTiT19qvSTMgG1FHpVoxZB5Lt91W+p4q00LvGFwBtUA5PvVbz5CfvY47U6ZSY1fcx3L3PvT0ESG0Vc75VGKcIrVFbMpbjsf8KqOME560Do1VcRpmW135cPJ8vUg09Li2UR7bfkd+OaguVBdNuOUHSiKJyEOxiPpRcRb+3kQsEhQZHenxXErFolZUBRuFQAdKri2mMLnyiABnk9KzrGW8fWJHRWaFiAEPULjBPtQ7gkdAbq4aJW8zBAXoBUGpTP/Ztw7kvgBsMeM5FWBav5Ef7yNcqjYzyRUOqwhdMulEyM2AuB9RSe2o4uzOXm1OSK3kkESMVGcZIzVAeJpe9pH/38P+FXJ9PuHtpUCruZSB83vWUdA1DP+rT/AL+CspWvodML9TXtdYaaHzDAoJyMbs/0q1HqZLA/Zwf+Bf8A1qz7PS7uK32PGM5J+8KvW9lMv3k5PuKfu2Jblc6/wb5g0RDKB8zswGc4BJIFFSeFGDaJEoOShKMB2IJyKKxe5siTxEcFMcEp1/GuMshxOD2c12viFCxj5x8hyfxrgZJvJinKAn58bvStYmUx1iP3tyByfMNX5Y2kVAo7DJNZOkSuZpMHB6njOa0p2dQpLnDY6HFXoZMVbUgfM6jipH8nYEeXgL2+tVD1OeuO9WJEH2aM452n+dO5IjPbKeInP1qQXUK7tkA6d8VTYgA7u/TmpEhkbO1WJx6U0xWL4vXRlxEq5XI5pTeSvGq/KBnsKYYJZmiKRkBY8Etgc8U82k0cPmEA7ewPJo1EMWaVo5A0rdPWsvUbmZFjPmSEltn3yODxVuRLiPbL5Z2gEOgYHGe9c/qOoRTCJ1SQ+XIGXjaDjtzQ3oNLU6+2SOW2t5Qqn92uGxzipL8sljdFTtO3jA9xXG6X4nk0+1ktzCJdp/dEtjaOSQfWr0PiqW8jm822UbIWdtmecEdKhvQpRfMEzXos5pYzMNoOGC9+3asNtV1RCM3Uw+qj/Ct6TxhC2lyWYsZ8s4O7IwMGs4a7Cx+aCX8gazbudEVYn03Ub2a2ZmuGZgTnIH+FX4bu5bb+9P8A3yDWcmrWrDiCYH/rnVqG+gblElH1iIqrq2xLi73udt4KiKaSzs5Yyyu5PuTRUfgq582ymiBG2OQ47Ee1FZvc0Re8R/8ALIE9UJx+NedtlllABO45P616L4jVN8O4nmNhj15FecXTMHdI/lXPQe1aR2InuSaOo82RejHGK1Zo1dFV5AoAH44Nc/YFhexAseW/xrbuVCwxuOuBz+NWYseBbA8ktTnnRYwwhJUA4zVUZ3VZfm0VcHcQwxindkmIurLs8w2qBckrnnnNbS3kwz8wzjriuTEcqW8kbuEO8fKWH3e/611VpbvcM23hQByw65oTY5JItO9wiRMZnwy544pgkd1AaRiM9zVs23mRxK8iKFXFQzx20Fu7NdohXnc/3V9zT1JOT8Uo6XiOD8m3bkH3Na2vf8edocA4uIjWdq81nMxMt3BKyLuXAYZOfu8dazbnUp54oVkuxMT1h8vhT2J9TUbXNLXSK0kY82bthm/ma1NBG5pgMHNs/T8KxyXSYsCQQTn2PetvRJ5rm8klupd5+zOD8vbj0pIsdMga2mB67Tx+FcuIgDXcubLD7lbGDng1nf8AFOkjj/x16UnccFYp6FEDby9OGzzWvCgcqAOMU6y/sgxuLY/Jn5sbuv41bjNguNrEfnTT0E1qdN4JhRdPdlUAtI2T6nNFN8Gyho72NM+VHP8Au2APIIBP65orJ7my2NDxKf39r7xv/MV53MCJGZh/Eetei+ImCvbcclZAP0rzi63NcurE/eNaRM5jbAIL2Mue46GtyR4dqhlZgOBnp1rnrJf9Nj9dwreuP+PVAOWwcAcnrVGTH/aQvCxgfWh5ZzEJFYKCSOB6VEIZGPCnvT53aC0jVkLEsenuKrUk4t7y63vtfGAVOABxmtnw9PJKZRJIzFQOrZ71gyqvmvnPU/nXReHEtUnkLFgXjDYVg3f9KlXbLlaxvvCqwwso5Yc1R1MD+y7rcONhrSSa1IVX8xgvQEVFqdxappd0Vt8kRMcmrtoZJnnt0+5hwBgdqZApEqHbn5h296t3lxGZSbVpApUZ3BRn8BVMyM2FyfTrWWhvqWbjH2iXBB+dun1rS8PMDNMByfs0nSsiSAxzFCQdpxwPStPw58l5JkMSLeQ/ex6UbDsabLmNsA9D/KuaIbA4P5V2P21vmPkjI/2qzf8AhJQMD7F/5EH+FD8xwViro/8AqpMk5yK1YFDY+tLYa2t3vP2QLtxn5wf6VbXUEbGLf9RTTdiZJXOm8G4FncAf89moqDwa0kk2oOV2xl12rnuFGaKze5qkrGl4jyZbMAdRJ/IV55d4SZiTzmvQ/FBIitSpx87D9BXnN0B9ox/tVcSJkNq6rdxEDPzr1+tdC8zqisqqFOa56IYu4xg/eHT610TIzwqqjkE9aoyZEZ5Cfv8A5Vn66rNp8codwxlIJDdRitP7Md2WZQM1na4yx2qIzqyeZkY45wep9KbTsJbnHyZya2vDB/02YD/nmP5islyhZs9K1fDtwUvtqKh/dng8Z5BqUtTSWx1smPJtjxkkj9DVa/Ctp91HgF2ibA79PSpY5HUx3KwwLIcqGH48Ut3eT/Ybhj5e/wApxuVMHGKsxPP5YnU7WBVsAkGo/LYDcen1pZpCQpwOg/GmiQ+3Ss9DcuPPHJdu/Oxm3A/WtXQHt/trkkhfs0m4k4xxWLeQiK6dEzhSMVf0GFJHuFcZDW0oP5CgDqpzpCaS0iTwfaPMA/1vzEd+KwTY6c5+Vx+ElRDTbVnI8sfnXPszqxG1ODj7tJpoqLT2Ous7eC0LNC2dwwdzA1ajIBzkECuY0iJbl5BMinaBjAxWxFaQrjbGmT7U0nYUrX1O18H3SKbuJiQSwcGiqPg+2Pn3kgOOFUKBgDiioe5a2Oj8TpuhtiTgCQ5P4V5zfMPPfaCTuOK9H8Wf8ett/wBdj/6DXnN0P9Ic9t5/nVR2InuQSq0V5Gm7PKkn61vEN5Od7Y5HJrCnYS3glUELlevtiugBTygDIuOSDV6mbKv+NUtaw2nKu3nzc5/CtT/R17lj6CsS/D3t3JbwuyKr5CnoBj+dDQluc4Vw5yMjHrUlm0sVyrxAll54pLrMU8kR52Eikt7kwuHEavgdHGRUmmtjrra+i2KnzHc27GPunvn+VTT3kTW00KlizI3AHtXM2onhtjfW0gR1HTGe+Kil1TUCrl7lv3uQ4AAzjimmjPlKcqgouDngU0RgjAPUYpJCcDntXWRoi+FlcIu7yAd2Bnr60RVy5OxzNxOZpmkKBS2OM/hWn4cJa7kUd4JBkD6VTvVUXL4AxgH9BV3QBiWfH/PCT+lJDNsWTBydy/lWS/hqRmLC4Xk5+4auoMsTzwR3rnJmkWaQCRxhj/GfWiV0OB0OnaJLaO5MqNuGPunir8Vi4Odynmud0V3a4cNI3K9WYkDmtePcxxubr60K9hStc6nwqwgvbu2YjeUSTPbHI/pRUPhK3Q3t27ZLeWgyTniioe5pHY6HxSwW0hZhnEvT/gJrzm+YmaTAC/PjFeieK+bCL184Y/75Ned3qkTPnj56uOxE9yi+fMAJPWuiSJVtV29iRn8K552XfktznNblncI9sCULDJ5B4zVGbE6mqUMsVtf3DzyKilhgsf8AZrUa4UfciAPqe1Yc1qL7VZUk5HBLDg9OBQxGDflZLuZ0OVZyQfUZqIAnartgYwM9ql1BBBeTRJnarEDPWq29vXtU6Gi2NW3kWS0S2Vju38YU5bmny6W6ed5gkzENz5wMA/U1VWIHTRNuIcMRwapEZGSST70JoRJKVCrjjjuas/2vcmyWy8xBEE2bdozj61RlHyiq+f3ik80XKauXppJmcmQncQMnGPpWn4eIN5N5jAL5Emctj0qlKN0qL3aNP5VraFaGS7kClMtDIAM/SlcWhrKlqGOJD+dZ72+iF38y4AfJzmQ9fyrXm0yWG2N4zp5e8JtHXNc3cabO8zspXDMSMmhlI1bK20hZCbe4BYjn95nj8qvJFZKSVm/8erA06znt7gtJgoVxwa0kUBznOCaaQnub+gXUcGrTRxnejwBiVPIIbH8qKPDBh/tC4LFQDEMZ47//AF6Khlxehv8AiuTGmAjgiUY/I15xdlmlyx616J4rBfSsL/z2TPsOa89uwqtyeauJEylIoVzgVt6QP+JaQevmmsWV164ya29Lnle03gDAcrzzTsQyR1ZRuKtgD0rFS/8Asl9LLcRMWYKQqH61q308rW0h3kEISMcc1zah7gSSSyEsApH50OwkVr5/tN5LKqlQ5JAPaq2zH5Us2d5GaZySPpSNEtCyJpBbCLIEZOSMd6iO05O8CrlvGDpUjEch+Dj6VSK5PA4oTEEhXYOfWmxsoK5A/Kldf3Y/Go0U/LwaAJp43iZPdQw+h6Vp6E8/n3LwsEcW0m046HAqlcujiDDAlYlU+xFaHh7BuLlQMn7O/GPpQBbmutakg+zvfKYi27bsHX8qyZdTuoJnieZiyHBwgxXQGNt4IU4x6Vg6hY3T3kzLBKVLZBCGk0lsOLbJLPUbm5lESS4JGfmjGK0UN13lQ4/6Z/8A16ztKs7hLxGkgkUYPJQ1trG+4/IwH0ppKwSbWxPpiXD3hVVDYjJY/dxyMUVo6KRHfybvlzFxnjPNFS7Fxeh03irjRpcf30/nXnNz98/SiiriZy3KlyMNW1of/HjIP+mv9KKKCGV9TkaOIKuMOGB/I1z8UrRRuFA+ZRnPsaKKGNFWQ5ck9xmkKgAUUUItAGO0DJweopxQDjn1oopiEIGwfWkUDA9qKKkQsiAHAJ6ZrV8OAfablyMsLd8fpRRQM3TO4YDjkZ6VlXOt3UN1JEiRFVOBlTn+dFFJjiSWOs3M86RusQB9FOf51pi8l+bhfyoooQFa7uJHuIc4GEfoPdaKKKRS2P/Z",
+ felipe:buildFelipeAssets()
+};
 
-        .magical-hud.quake-alert {
-            color: #ff6b6b;
-            border-color: rgba(255, 71, 87, 0.85);
-            box-shadow: 0 0 25px rgba(255, 71, 87, 0.55);
-        }
+const $=id=>document.getElementById(id),cv=$('c'),x=cv.getContext('2d');
+let W,Hh;function rs(){const d=Math.min(2,devicePixelRatio||1);W=innerWidth;Hh=innerHeight;cv.width=W*d;cv.height=Hh*d;x.setTransform(d,0,0,d,0,0)}addEventListener('resize',rs);rs();
 
-        .felix-guide-container {
-            position: absolute;
-            bottom: 15px;
-            left: 20px;
-            display: flex;
-            align-items: flex-end;
-            z-index: 20;
-            pointer-events: none;
-            animation: floatCharacter 3.5s ease-in-out infinite;
-        }
+let felipePose='';
+function setFelipePose(pose){
+ if(felipePose===pose)return;
+ felipePose=pose;
+ $('felipe').src=IMG_SRC.felipe[pose]||IMG_SRC.felipe.idle;
+}
+setFelipePose('idle');
+$('introHero').src=IMG_SRC.felipe.idle;
 
-        .felix-avatar {
-            width: 145px;
-            height: auto;
-            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.75));
-            z-index: 2;
-        }
+const FAC=new Image();FAC.src=IMG_SRC.fac;const okI=()=>FAC.complete&&FAC.naturalWidth>0;
 
-        .speech-bubble {
-            position: relative;
-            background: linear-gradient(135deg, #ffffff 0%, #f1f2f6 100%);
-            color: #1e272e;
-            padding: 14px 20px;
-            border-radius: 20px;
-            border-bottom-left-radius: 4px;
-            margin-left: -15px;
-            margin-bottom: 55px;
-            max-width: 270px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 0 3px #ffd32a;
-            font-size: 14px;
-            line-height: 1.4;
-            z-index: 1;
-            transition: all 0.3s ease;
-        }
+/* ---------- Audio (Web Audio API): retumbo, crujidos, alarmas, vidrios, caídas y martillo dorado ---------- */
+let AC=null,master,AU={},muted=false,lastDm=0,lastAlertLv=0;
+function audioInit(){
+ if(!AC){const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;AC=new Ctx();
+  const comp=AC.createDynamicsCompressor();master=AC.createGain();master.gain.value=muted?0:.9;master.connect(comp);comp.connect(AC.destination);
+  const mk=(n,brown)=>{const b=AC.createBuffer(1,AC.sampleRate*n,AC.sampleRate),d=b.getChannelData(0);let l=0;for(let i=0;i<d.length;i++){const w=Math.random()*2-1;if(brown){l=(l+.02*w)/1.02;d[i]=l*3.5}else d[i]=w}return b};
+  AU.nb=mk(3,1);AU.wb=mk(1,0);
+  const rs=AC.createBufferSource();rs.buffer=AU.nb;rs.loop=true;rs.start();
+  AU.lp=AC.createBiquadFilter();AU.lp.type='lowpass';AU.lp.Q.value=2;AU.rg=AC.createGain();AU.rg.gain.value=0;rs.connect(AU.lp);AU.lp.connect(AU.rg);AU.rg.connect(master);
+  AU.sub=AC.createOscillator();AU.sub.frequency.value=30;AU.sg=AC.createGain();AU.sg.gain.value=0;AU.sub.connect(AU.sg);AU.sg.connect(master);AU.sub.start();
+  AU.al=AC.createOscillator();AU.al.type='square';const af=AC.createBiquadFilter();af.type='bandpass';af.frequency.value=1100;af.Q.value=.8;AU.ag=AC.createGain();AU.ag.gain.value=0;AU.al.connect(af);af.connect(AU.ag);AU.ag.connect(master);AU.al.start()}
+ if(AC.state==='suspended')AC.resume()}
 
-        .speech-bubble.quake-bubble {
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 0 3px #ff4757;
-        }
+function tone(f,d,type='sine',v=.2,t0=0,f2){if(!AC)return;const t=AC.currentTime+t0,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(master);o.start(t);o.stop(t+d+.05)}
 
-        .speech-bubble strong {
-            color: #0984e3;
-            font-size: 15px;
-            display: block;
-            margin-bottom: 3px;
-        }
+function crack(k){if(!AC)return;const t=AC.currentTime,s=AC.createBufferSource();s.buffer=AU.wb;const f=AC.createBiquadFilter();f.type='bandpass';f.frequency.value=400+Math.random()*2600;f.Q.value=1.4;const g=AC.createGain();g.gain.setValueAtTime(.25+.6*k,t);g.gain.exponentialRampToValueAtTime(.001,t+.04+.2*k*Math.random());s.connect(f);f.connect(g);g.connect(master);s.start(t,Math.random()*.5);s.stop(t+.3);if(k>.5)tone(100+Math.random()*60,.28,'triangle',.3*k,0,40)}
 
-        @keyframes floatCharacter {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-7px); }
-        }
+function sfxGlass(){
+ if(!AC)return;
+ const t=AC.currentTime,s=AC.createBufferSource();s.buffer=AU.wb;
+ const f=AC.createBiquadFilter();f.type='highpass';f.frequency.value=2600;
+ const g=AC.createGain();g.gain.setValueAtTime(.24,t);g.gain.exponentialRampToValueAtTime(.001,t+.18);
+ s.connect(f);f.connect(g);g.connect(master);s.start(t,Math.random()*.3);s.stop(t+.2);
+ [2400+Math.random()*900,3200+Math.random()*1100].forEach((fr,i)=>tone(fr,.12,'sine',.09,i*.03,fr*.7));
+}
 
-        @media (max-width: 600px) {
-            .felix-avatar { width: 105px; }
-            .speech-bubble { max-width: 190px; font-size: 12px; margin-bottom: 40px; }
-        }
-    </style>
-</head>
-<body>
+function sfxFall(){
+ if(!AC)return;
+ const base=780+Math.random()*240;
+ tone(base,.48,'sine',.13,0,220);
+ tone(base*1.12,.38,'triangle',.06,.04,260);
+}
 
-    <div class="magical-hud" id="instruction">
-        ✨ Apunta tu mirada al portal brillante para viajar de realidad ✨
-    </div>
+function sfxBounce(){
+ if(!AC)return;
+ tone(145,.18,'sine',.24,0,62);
+ tone(190,.16,'triangle',.16,.07,320);
+}
 
-    <div class="felix-guide-container">
-        <img src="felix.png" alt="Repara Félix" class="felix-avatar" onerror="this.src='image_db0ee8.png'">
-        <div class="speech-bubble" id="felix-dialog">
-            <strong>¡Hola, soy Repara Félix! 🔨✨</strong>
-            <span id="felix-text">¡Con mi martillo dorado puedo reparar cualquier grieta dimensional! Mira fijamente los portales para cruzar.</span>
-        </div>
-    </div>
+function sfxHammer(){
+ if(!AC)return;
+ tone(1180,.09,'triangle',.22,0,620);
+ tone(2360,.14,'sine',.14,.01,1580);
+ [587.3,880,1174.7,1760].forEach((f,i)=>tone(f,.26,'sine',.13,i*.055));
+}
 
-    <a-scene embedded>
-        <a-assets>
-            <img id="img-1" src="1.webp" crossorigin="anonymous">
-            <img id="img-2" src="2.webp" crossorigin="anonymous">
-            <img id="img-3" src="3.webp" crossorigin="anonymous">
+function sfxMode(m){
+ if(m==0){tone(150,.25,'square',.12,0,90);tone(110,.3,'square',.12,.12,70)}
+ else if(m==1){[440,660,880,1100].forEach((f,i)=>tone(f,.28,'sine',.18,i*.08))}
+ else{tone(330,.12,'triangle',.2);tone(330,.12,'triangle',.2,.14);tone(495,.28,'triangle',.22,.28)}
+}
 
-            <canvas id="tex-vortex" width="512" height="512"></canvas>
-            <canvas id="tex-runes" width="512" height="512"></canvas>
-        </a-assets>
+function audioUpdate(){if(!AC)return;const t=AC.currentTime,k=Math.min(1,M/8.8),b=B[mode],iso=mode==1,kk=Math.pow(k,1.4);
+ AU.rg.gain.setTargetAtTime((M<1?0:kk*1.35)*(iso?.55:1)*(.75+.25*Math.sin(ph)),t,.05);
+ AU.lp.frequency.setTargetAtTime((70+k*330)*(iso?.6:1),t,.08);
+ AU.sub.frequency.setTargetAtTime(26+k*36,t,.1);AU.sg.gain.setTargetAtTime((M<1?0:kk*.52)*(iso?.6:1),t,.08);
+ const st=Math.min(1,b.pk/.02),rate=M<3?0:(iso?.4:1)*(2+st*14+b.dm*12)*k;
+ if(Math.random()<rate/60)crack(Math.min(1,st+b.dm*.5+.15));
+ if(b.dm>lastDm+.05){crack(1);lastDm=b.dm}else if(b.dm<lastDm)lastDm=b.dm;
+ const on=M>5.2&&phase!='end',lv=on?.035+Math.min(1,(M-5.2)/3)*.095:0;
+ AU.al.frequency.setTargetAtTime(Math.floor(T*2.4)%2?560+k*200:760+k*260,t,.005);
+ AU.ag.gain.setTargetAtTime(on&&((T*2.4)%1)<.85?lv:0,t,.01);
+ const alertLv=M>=7.5?2:M>=5.8?1:0;
+ if(alertLv>lastAlertLv&&phase==='play'){tone(alertLv===2?880:660,.2,'sawtooth',.14,0,alertLv===2?440:520)}
+ lastAlertLv=alertLv;
+}
 
-        <a-sky id="sky-sphere" src="#img-1" rotation="0 -90 0"></a-sky>
+/* ---------- Física: edificio de corte de 10 pisos ---------- */
+const N=10,HS=3.2,KM=1764,KB=69,CB=8.6;
+const MODES=['Base rígida','Aislación sísmica','Disipadores'],FING=['1 dedo','2 dedos','3 dedos'],COL=['#ef4b24','#0fa597','#e89400'];
+const INFO=['Base fija: el edificio sigue al suelo y se deforma.','Base deslizante como un péndulo: el suelo se mueve y el edificio casi no.','Amortiguadores: frenan el balanceo y lo convierten en calor (Torre Titanium).'],BETA=[.016,.016,.07];
+const B=[0,1,2].map(m=>({m,u:new Float64Array(N+1),v:new Float64Array(N+1),a:new Float64Array(N+1),d:new Float64Array(N+1),pk:0,dm:0,cr:Array.from({length:N+1},()=>[Math.random(),Math.random(),Math.random(),Math.random()])}));
+const ks=(b,i)=>KM*(1-.95*Math.min(1,b.d[i]));
+function step(b,ug,vg,dt){const{u,v,a,d}=b,iso=b.m==1,be=BETA[b.m];
+ if(!iso){u[0]=ug;v[0]=vg}
+ for(let i=0;i<=N;i++){let f=0;
+  if(i>0){const k=ks(b,i);f-=k*(u[i]-u[i-1])+be*k*(v[i]-v[i-1])}
+  if(i<N){const k=ks(b,i+1);f+=k*(u[i+1]-u[i])+be*k*(v[i+1]-v[i])}
+  if(i==0&&iso)f-=KB*(u[0]-ug)+CB*(v[0]-vg);
+  a[i]=f/(i?1:2)}
+ for(let i=iso?0:1;i<=N;i++){v[i]+=a[i]*dt;u[i]+=v[i]*dt}
+ for(let i=1;i<=N;i++){const r=Math.abs(u[i]-u[i-1])/HS;if(r>.004)d[i]=Math.min(1.2,d[i]+(r-.004)*dt*15)}}
 
-        <a-light type="ambient" color="#ffffff" intensity="0.85"></a-light>
-        <a-light type="point" intensity="1.8" position="0 3 -2" color="#ffd32a"></a-light>
+let M=0,Mt=0,ph=0,T=0,ug=0,vg=0,quiet=0;
+function ground(dt){M+=(Mt-M)*Math.min(1,dt*4);T+=dt;
+ const pga=M<2.5?0:.01*Math.pow(10,.28*(M-3)),w=2*Math.PI*(.8+.25*Math.max(0,M-3)/5.8)*(1+.08*Math.sin(T*.7));
+ ph+=w*dt;const A=pga*9.8/(w*w),p2=1.87*ph+1.1;
+ ug=A*(Math.sin(ph)+.35*Math.sin(p2));vg=A*w*(Math.cos(ph)+.65*Math.cos(p2))}
 
-        <!-- Contenedor de dramatismo sísmico (ventanas y personas que caen) -->
-        <a-entity id="earthquake-container"></a-entity>
+/* ---------- Ventanas, Vecinos y Partículas de Emoción ---------- */
+const HAIR_COL=['#2b1b12','#6d3b1e','#d97706','#1e293b','#991b1b','#4338ca'];
+const SHIRT_COL=['#f43f5e','#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec4899','#06b6d4'];
+const CRIES=['¡Ayuda!','¡Aaaah!','¡Se mueve!','¡Sismo!','¡Auxilio!','¡Mamá!'];
+const WINDOWS=[];
+for(let f=1;f<=N;f++){
+ for(let w=0;w<3;w++){
+  WINDOWS.push({
+   floor:f,slot:w,
+   hair:HAIR_COL[(f*3+w)%HAIR_COL.length],
+   shirt:SHIRT_COL[(f*5+w*2)%SHIRT_COL.length],
+   glasses:(f+w)%4===0,
+   panic:0,broken:false,cooldown:0,
+   cry:CRIES[(f+w)%CRIES.length]
+  });
+ }
+}
+const FALLERS=[];
+const PARTICLES=[];
+let fallCount=0,lastScreenPos={cx:0,ys:[],bw:120,gy:500,e:10};
 
-        <!-- Contenedor dinámico de portales -->
-        <a-entity id="portals-container"></a-entity>
+function spawnParticles(px,py,color,count,speed=130,star=false){
+ for(let i=0;i<count&&PARTICLES.length<180;i++){
+  const ang=Math.random()*Math.PI*2,sp=(.3+.7*Math.random())*speed;
+  PARTICLES.push({x:px,y:py,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp-40,life:.55+Math.random()*.45,max:1,color,size:star?5+Math.random()*4:2.5+Math.random()*3.5,star});
+ }
+}
 
-        <!-- Rig de cámara con sacudida sísmica -->
-        <a-entity id="camera-rig" position="0 1.6 0">
-            <a-entity id="main-camera" camera look-controls>
-                <a-cursor id="cursor"
-                          fuse="true"
-                          fuse-timeout="1200"
-                          raycaster="objects: .portal-hitbox"
-                          material="color: #ffd32a; shader: flat"
-                          position="0 0 -1"
-                          geometry="primitive: ring; radiusInner: 0.014; radiusOuter: 0.024"
-                          animation__fuse="property: scale; startEvents: fusing; to: 2 2 2; dur: 1200; easing: easeInOutQuad"
-                          animation__mouseleave="property: scale; startEvents: mouseleave; to: 1 1 1; dur: 200">
-                </a-cursor>
-            </a-entity>
-        </a-entity>
-    </a-scene>
+function triggerHammerRepair(){
+ audioInit();
+ const b=B[mode];
+ let repaired=false;
+ for(let i=1;i<=N;i++){
+  if(b.d[i]>0.02){b.d[i]=Math.max(0,b.d[i]-0.45);repaired=true}
+ }
+ WINDOWS.forEach(w=>{w.broken=false;w.cooldown=1.5});
+ sfxHammer();
+ const p=$('felipe');
+ p.classList.remove('jump','hammer');void p.offsetWidth;p.classList.add('hammer');
+ setFelipePose('repair');
+ setTimeout(()=>{if(M<=6)setFelipePose('idle')},950);
+ const {cx,ys,bw,gy}=lastScreenPos;
+ for(let i=1;i<=N;i+=2){
+  const yy=ys[i]||gy-i*25;
+  spawnParticles(cx+(Math.random()-.5)*bw,yy,'#ffd43b',6,150,true);
+ }
+ speak(repaired?'¡Martillo dorado en acción! ¡Edificio reparado y reforzado!':'¡Listo y brillante! El edificio está impecable.', 'repair', 2.6);
+}
 
-    <script>
-        let quakeInterval = null;
+/* ---------- Estado del juego y guía ---------- */
+let mode=0,phase='intro',gt=0,hold=0,si=0,peaks=[0,0,0],fl={},tI=0,tD=0,acc=0;const HN=150,hist=new Array(HN).fill(0);
+const SCRIPT=[
+ [0,'¡Hola! Soy Felipe Repara Feliz. ¡Hagamos temblar este edificio!','idle'],
+ [6,'Mano DERECHA: ciérrala para calma y ábrela para un sismo fuerte.','idle'],
+ [15,'Mano IZQUIERDA: 1 dedo es base rígida. ¡Mira las ventanas si sacudes fuerte!','wow'],
+ [27,'Prueba 2 dedos: aislación sísmica. ¡El edificio se desliza y salva a todos!','wow'],
+ [39,'3 dedos: disipadores, como la Torre Titanium. ¡Frenan el balanceo!','repair'],
+ [50,'¡Recta final! Desata un terremoto gigante como el del Maule 2010.','wow']
+];
+function speak(t,m,h){
+ $('say').textContent=t;hold=gt+(h||0);
+ const p=$('felipe');p.classList.remove('jump','hammer');void p.offsetWidth;
+ if(m==='repair'){p.classList.add('hammer');setFelipePose('repair')}
+ else if(m!=='idle'&&m!=='happy'){p.classList.add('jump');setFelipePose(m==='panic'?'panic':'wow');tone(320,.28,'sine',.16,0,720)}
+ else if(M<=6){setFelipePose('idle')}
+}
+function setMode(m){
+ const o=mode;mode=(m+3)%3;
+ if(AC&&o!==mode){
+  sfxMode(mode);
+  if(mode>0&&M>=5.2){
+   sfxHammer();
+   const p=$('felipe');p.classList.remove('hammer');void p.offsetWidth;p.classList.add('hammer');
+   setFelipePose('repair');
+   const {cx,ys,bw,gy}=lastScreenPos;
+   spawnParticles(cx,ys[1]||gy-30,'#35d3c4',14,170,true);
+  }
+ }
+ [...$('modes').children].forEach((e,i)=>e.classList.toggle('on',i==mode));
+}
+MODES.forEach((n,i)=>{const b=document.createElement('button');b.innerHTML=`${n}<small>${FING[i]}</small>`;b.style.borderBottom='4px solid '+COL[i];b.onclick=()=>setMode(i);$('modes').appendChild(b)});setMode(0);
+$('sl').oninput=e=>{Mt=+e.target.value};
+$('repBtn').onclick=triggerHammerRepair;
+addEventListener('keydown',e=>{
+ if(e.key>='1'&&e.key<='3')setMode(e.key-1);
+ if(e.key==='r'||e.key==='R')triggerHammerRepair();
+ if(e.key=='ArrowUp'){Mt=Math.min(8.8,Mt+.5);$('sl').value=Mt}
+ if(e.key=='ArrowDown'){Mt=Math.max(0,Mt-.5);$('sl').value=Mt}
+});
+function start(){
+ audioInit();sfxHammer();
+ phase='play';gt=0;hold=0;si=0;peaks=[0,0,0];fl={};tI=tD=0;fallCount=0;lastAlertLv=0;
+ FALLERS.length=0;PARTICLES.length=0;
+ WINDOWS.forEach(w=>{w.panic=0;w.broken=false;w.cooldown=0});
+ B.forEach(b=>{b.d.fill(0);b.pk=0;b.dm=0});
+ $('fallStat').textContent='0';$('hpStat').textContent='100%';
+ $('intro').classList.add('hide');$('end').classList.add('hide');
+ setFelipePose('idle');
+ initCam();
+}
+function finish(){
+ phase='end';
+ [523,659,784].forEach((f,i)=>tone(f,.25,'triangle',.22,i*.15));tone(1047,.6,'triangle',.22,.45);
+ Mt=0;$('sl').value=0;$('timer').style.width=0;$('alertBanner').classList.add('hide');
+ const mx=Math.max(.001,...peaks),r=peaks[0]>0&&peaks[1]>0?Math.round(100*(1-peaks[1]/peaks[0])):null;
+ $('msg').textContent=r!==null?`La aislación redujo la deformación del edificio un ${Math.max(0,r)} % frente a la base rígida.`:'Para comparar, prueba las tres bases con un sismo fuerte.';
+ $('res').innerHTML=MODES.map((n,i)=>`<div><span>${n}</span><i style="width:${peaks[i]?Math.max(4,peaks[i]/mx*100):0}%;background:${COL[i]}"></i><b>${peaks[i]?(peaks[i]*100).toFixed(1)+'%':'–'}</b></div>`).join('');
+ $('fallSummary').textContent=fallCount===0?'🌟 ¡Cero caídas! Todos los vecinos estuvieron a salvo.':'🪟 Vecinos que cayeron en la colchoneta de rescate: '+fallCount;
+ $('end').classList.remove('hide');
+ speak('¡Excelente trabajo, ingeniero o ingeniera! ¡A reparar y celebrar!','repair');
+}
+const tgl=()=>{muted=!muted;if(master)master.gain.setTargetAtTime(muted?0:.9,AC.currentTime,.05);$('snd').textContent='Sonido: '+(muted?'no':'sí');$('snd').setAttribute('aria-pressed',!muted)};$('snd').onclick=tgl;addEventListener('keydown',e=>{if(e.key=='m')tgl()});
+$('go').onclick=start;$('again').onclick=start;
 
-        function generarTexturasMagicas() {
-            const canvasVortex = document.getElementById('tex-vortex');
-            const ctxV = canvasVortex.getContext('2d');
-            const cx = 256, cy = 256;
+/* ---------- Cámara y manos ---------- */
+const mc=$('mc'),mx2=mc.getContext('2d'),dist=(p,q)=>Math.hypot(p.x-q.x,p.y-q.y),cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+const openness=h=>[8,12,16,20].reduce((s,i)=>s+dist(h[0],h[i]),0)/4/dist(h[0],h[9]);
+const fingers=h=>[[8,6],[12,10],[16,14],[20,18]].filter(([t,p])=>dist(h[0],h[t])>dist(h[0],h[p])*1.15).length;
+let wasR=false,cand=0,candT=0,camOn=false;
+function onHands(r){const hs=r.multiHandLandmarks||[],hd=r.multiHandedness||[];let R=null,L=null;
+ hs.forEach((h,i)=>{const right=hd[i]&&hd[i].label==='Right';if(right)R=h;else L=h;mx2.fillStyle=right?'#ff6a3d':'#35d3c4';h.forEach(p=>{mx2.beginPath();mx2.arc(p.x*480,p.y*360,5,0,7);mx2.fill()})});
+ $('st').textContent=(R?'Derecha ✓ ':'Derecha ✗ ')+(L?'· Izquierda ✓':'· Izquierda ✗');
+ if(R){const t=cl((openness(R)-1.15)/.75,0,1);Mt=t<.08?0:2.5+6.3*t;$('sl').value=Mt;wasR=true}else if(wasR){Mt=0;$('sl').value=0;wasR=false}
+ if(L){const n=fingers(L),now=performance.now();if(n<1||n>3){cand=0}else if(n!==cand){cand=n;candT=now}else if(now-candT>350&&n-1!==mode)setMode(n-1)}}
+async function initCam(){if(camOn)return;camOn=true;
+ try{if(typeof Hands==='undefined')throw 0;const v=document.createElement('video');v.playsInline=true;v.muted=true;
+  v.srcObject=await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'}});await v.play();
+  const h=new Hands({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/${f}`});
+  h.setOptions({maxNumHands:2,modelComplexity:1,minDetectionConfidence:.6,minTrackingConfidence:.5});h.onResults(onHands);
+  const lp=async()=>{if(v.readyState>=2){mx2.save();mx2.scale(-1,1);mx2.drawImage(v,-480,0,480,360);mx2.restore();await h.send({image:mc})}requestAnimationFrame(lp)};lp()}
+ catch(e){camOn=false;$('st').textContent='Sin cámara: usa el deslizador'}}
 
-            const grad = ctxV.createRadialGradient(cx, cy, 10, cx, cy, 250);
-            grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-            grad.addColorStop(0.3, 'rgba(255, 211, 42, 0.85)');
-            grad.addColorStop(0.65, 'rgba(255, 71, 87, 0.5)');
-            grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-            ctxV.fillStyle = grad;
-            ctxV.fillRect(0, 0, 512, 512);
+/* ---------- Simulación ---------- */
+function sim(dt){
+ ground(dt);
+ const n=Math.ceil(dt/(1/600)),h=dt/n;
+ for(let s=0;s<n;s++)B.forEach(b=>step(b,ug,vg,h));
+ quiet=M<1.5?quiet+dt:0;
+ B.forEach(b=>{
+  let mx=0,sd=0;
+  for(let i=1;i<=N;i++){
+   const prevD=b.d[i];
+   mx=Math.max(mx,Math.abs(b.u[i]-b.u[i-1])/HS);
+   sd+=Math.min(1,b.d[i]);
+   if(quiet>2.5)b.d[i]=Math.max(0,b.d[i]-dt*.5);
+   if(b===B[mode]&&b.d[i]>prevD+.008&&lastScreenPos.ys[i]){
+    spawnParticles(lastScreenPos.cx+(Math.random()-.5)*lastScreenPos.bw,lastScreenPos.ys[i],'#e2e8f0',2,75,false);
+   }
+  }
+  b.pk=Math.max(mx,b.pk*Math.exp(-dt/3));b.dm=sd/N;
+ });
+ acc+=dt;if(acc>=.1){acc-=.1;hist.push(M);hist.shift()}
 
-            ctxV.strokeStyle = 'rgba(255, 255, 255, 0.7)';
-            ctxV.lineWidth = 4;
-            for (let i = 0; i < 6; i++) {
-                ctxV.beginPath();
-                for (let angle = 0; angle < Math.PI * 4; angle += 0.1) {
-                    const r = angle * 18;
-                    const x = cx + Math.cos(angle + (i * Math.PI / 3)) * r;
-                    const y = cy + Math.sin(angle + (i * Math.PI / 3)) * r;
-                    if (angle === 0) ctxV.moveTo(x, y);
-                    else ctxV.lineTo(x, y);
-                }
-                ctxV.stroke();
-            }
+ const bCur=B[mode];
+ const hp=Math.max(0,Math.round(100*(1-bCur.dm*.85)));
+ $('hpStat').textContent=hp+'%';
+ $('alertBanner').classList.toggle('hide',M<5.8||phase==='end');
 
-            const canvasRunes = document.getElementById('tex-runes');
-            const ctxR = canvasRunes.getContext('2d');
-            ctxR.strokeStyle = '#ffd32a';
-            ctxR.lineWidth = 6;
-            ctxR.setLineDash([20, 15, 5, 15]);
-            ctxR.beginPath();
-            ctxR.arc(cx, cy, 220, 0, Math.PI * 2);
-            ctxR.stroke();
+ const isQuakingHard=M>6.0;
+ $('felipe').classList.toggle('sh',isQuakingHard);
+ if(isQuakingHard&&felipePose!=='panic')setFelipePose('panic');
+ else if(!isQuakingHard&&felipePose==='panic')setFelipePose('idle');
 
-            for (let i = 0; i < 24; i++) {
-                const a = (i / 24) * Math.PI * 2;
-                const rx = cx + Math.cos(a) * 235;
-                const ry = cy + Math.sin(a) * 235;
-                ctxR.fillStyle = i % 2 === 0 ? '#ffffff' : '#ffd32a';
-                ctxR.beginPath();
-                ctxR.arc(rx, ry, i % 2 === 0 ? 5 : 3, 0, Math.PI * 2);
-                ctxR.fill();
-            }
-        }
+ // Actualizar ventanas y expulsión de personajes en terremotos fuertes
+ WINDOWS.forEach(w=>{
+  if(w.cooldown>0)w.cooldown=Math.max(0,w.cooldown-dt);
+  const f=w.floor;
+  const drift=Math.abs(bCur.u[f]-bCur.u[f-1])/HS;
+  const targetPanic=(M>=5.0&&!w.broken)?Math.min(1,(M-4.6)/2.6 + drift*45):0;
+  w.panic+=(targetPanic-w.panic)*Math.min(1,dt*6);
 
-        // Construye una ventana 3D (marco + cristal translúcido) que vibra y cae con el temblor
-        function crearVentanaCayendo(x, yStart, z, rotY, delay) {
-            return `
-                <a-entity position="${x} ${yStart} ${z}" rotation="0 ${rotY} 0"
-                          animation__shake="property: rotation; from: 0 ${rotY} -10; to: 0 ${rotY} 10; dur: 90; dir: alternate; loop: true; delay: ${delay}"
-                          animation__fall="property: position; to: ${x} -2.2 ${z}; dur: 2200; easing: easeInQuad; loop: true; delay: ${delay + 500}">
-                    <!-- Marco de ventana -->
-                    <a-box width="1.1" height="1.4" depth="0.08" material="color: #5d4037; roughness: 0.7"></a-box>
-                    <!-- Cristal celeste translúcido -->
-                    <a-plane width="0.92" height="1.22" position="0 0 0.045" material="color: #81ecec; opacity: 0.55; transparent: true; roughness: 0.1"></a-plane>
-                    <!-- Travesaños -->
-                    <a-box width="0.92" height="0.05" depth="0.09" position="0 0 0.04" material="color: #4e342e"></a-box>
-                    <a-box width="0.05" height="1.22" depth="0.09" position="0 0 0.04" material="color: #4e342e"></a-box>
-                </a-entity>
-            `;
-        }
+  // Cuando hay terremoto fuerte y el piso se deforma mucho, ¡se abre/rompe la ventana y cae un personaje!
+  if(phase==='play'&&M>=5.6&&!w.broken&&w.cooldown<=0&&FALLERS.length<9){
+   const danger=drift*180 + Math.max(0,M-5.8)*0.22 + bCur.d[f]*0.6;
+   if(danger>1.25 && Math.random()<dt*danger*0.42){
+    w.broken=true;
+    w.cooldown=6+Math.random()*5;
+    fallCount++;
+    $('fallStat').textContent=fallCount;
+    sfxGlass();
+    sfxFall();
+    const {cx,ys,bw,gy,e}=lastScreenPos;
+    const xl=cx+bCur.u[f-1]*e,xu=cx+bCur.u[f]*e,xm=(xl+xu)/2;
+    const wx=xm+(w.slot-1)*(bw*0.28);
+    const wy=((ys[f-1]||gy)+(ys[f]||gy))/2;
+    spawnParticles(wx,wy,'#bae6fd',7,140,false);
+    const dir=w.slot===0?-1:w.slot===2?1:(Math.random()<.5?-1:1);
+    FALLERS.push({
+     x:wx,y:wy,
+     vx:dir*(95+Math.random()*95)+bCur.v[f]*12,
+     vy:-110-Math.random()*70,
+     rot:0,vrot:dir*(5+Math.random()*5),
+     hair:w.hair,shirt:w.shirt,glasses:w.glasses,
+     bounced:false,groundTimer:0,cry:w.cry
+    });
+    if(!fl.fall&&gt>=hold){
+     fl.fall=1;
+     speak('¡Ay no! ¡Con base rígida los vecinos salen volando por las ventanas! ¡Usa aislación o disipadores!','panic',4.5);
+    }
+   }
+  }
+  if(w.broken&&w.cooldown<=0&&M<4.5)w.broken=false;
+ });
 
-        // Construye una figura humana estilizada (cabeza + torso + extremidades) que tambalea y cae al suelo
-        function crearPersonaCayendo(x, z, rotY, colorCamisa, delay) {
-            return `
-                <a-entity position="${x} 0.9 ${z}" rotation="0 ${rotY} 0"
-                          animation__wobble="property: rotation; from: -18 ${rotY} -14; to: 22 ${rotY} 16; dur: 140; dir: alternate; loop: true; delay: ${delay}"
-                          animation__topple="property: rotation; to: 85 ${rotY} 25; dur: 1300; easing: easeInCubic; loop: true; delay: ${delay + 700}"
-                          animation__drop="property: position; to: ${x} -1.1 ${z}; dur: 1300; easing: easeInCubic; loop: true; delay: ${delay + 700}">
-                    <!-- Cabeza -->
-                    <a-sphere radius="0.18" position="0 0.72 0" material="color: #ffccbc; roughness: 0.6"></a-sphere>
-                    <!-- Torso -->
-                    <a-cylinder radius="0.19" height="0.65" position="0 0.25 0" material="color: ${colorCamisa}; roughness: 0.7"></a-cylinder>
-                    <!-- Brazo izquierdo en alto por el susto -->
-                    <a-cylinder radius="0.06" height="0.55" position="-0.28 0.55 0" rotation="0 0 35" material="color: #ffccbc"></a-cylinder>
-                    <!-- Brazo derecho -->
-                    <a-cylinder radius="0.06" height="0.55" position="0.28 0.45 0" rotation="0 0 -25" material="color: #ffccbc"></a-cylinder>
-                    <!-- Piernas -->
-                    <a-cylinder radius="0.075" height="0.6" position="-0.1 -0.35 0" material="color: #2d3436"></a-cylinder>
-                    <a-cylinder radius="0.075" height="0.6" position="0.1 -0.35 0" material="color: #2d3436"></a-cylinder>
-                </a-entity>
-            `;
-        }
+ // Física de personajes cayendo
+ const gy=Hh*.73;
+ for(let i=FALLERS.length-1;i>=0;i--){
+  const p=FALLERS[i];
+  if(!p.bounced){
+   p.vy+=660*dt;
+   p.x+=p.vx*dt;
+   p.y+=p.vy*dt;
+   p.rot+=p.vrot*dt;
+   if(p.y>=gy-10){
+    p.y=gy-10;
+    p.bounced=true;
+    p.vy=-220;
+    p.vx*=0.55;
+    p.rot=0;
+    sfxBounce();
+    spawnParticles(p.x,gy-6,'#ffc93c',8,120,true);
+   }
+  }else{
+   p.groundTimer+=dt;
+   if(p.y<gy-10||p.vy<0){
+    p.vy+=680*dt;
+    p.y=Math.min(gy-10,p.y+p.vy*dt);
+    p.x+=p.vx*dt;
+   }else{
+    p.x+=(p.vx>=0?90:-90)*dt;
+   }
+   if(p.groundTimer>1.6)FALLERS.splice(i,1);
+  }
+ }
 
-        function activarEfectoTerremoto(activo) {
-            const eqContainer = document.querySelector('#earthquake-container');
-            const camRig = document.querySelector('#camera-rig');
-            const hud = document.querySelector('#instruction');
-            const bubble = document.querySelector('#felix-dialog');
+ // Partículas
+ for(let i=PARTICLES.length-1;i>=0;i--){
+  const pt=PARTICLES[i];
+  pt.x+=pt.vx*dt;pt.y+=pt.vy*dt;pt.vy+=260*dt;pt.life-=dt;
+  if(pt.life<=0)PARTICLES.splice(i,1);
+ }
 
-            if (quakeInterval) {
-                clearInterval(quakeInterval);
-                quakeInterval = null;
-            }
+ audioUpdate();
+ if(phase!='play')return;
+ gt+=dt;const left=Math.max(0,60-gt);$('clock').textContent=Math.floor(left/60)+':'+String(Math.ceil(left)%60).padStart(2,'0').replace(/^60$/,'00');$('timer').style.width=gt/60*100+'%';
+ if(M>=5)peaks[mode]=Math.max(peaks[mode],B[mode].pk);
+ if(si<SCRIPT.length&&gt>=SCRIPT[si][0]&&gt>=hold){speak(SCRIPT[si][1],SCRIPT[si][2],0);si++}
+ if(mode==0&&M>5&&B[0].dm>.2&&!fl.r){fl.r=1;speak('¡Uy! La base rígida deja pasar todo el sismo y el edificio se agrieta.','panic',4)}
+ tI=mode==1&&M>5?tI+dt:tI;if(tI>2&&!fl.i){fl.i=1;speak('¡Mira! La base se desliza y los vecinos en las ventanas están a salvo.','wow',4)}
+ tD=mode==2&&M>5?tD+dt:tD;if(tD>2&&!fl.d){fl.d=1;speak('Los amortiguadores frenan el balanceo, como en la Torre Titanium.','repair',4)}
+ if(gt>=60)finish();
+}
 
-            if (activo) {
-                hud.classList.add('quake-alert');
-                bubble.classList.add('quake-bubble');
+/* ---------- Dibujo ---------- */
+const mix=d=>`rgb(214,${Math.round(200-140*d)},${Math.round(172-132*d)})`;
+function chart(){const w=Math.min(340,W*.46),h=Math.min(130,Hh*.2),X=W-w-16,Y=max0(14);
+ x.fillStyle='rgba(255,255,255,.92)';x.strokeStyle='#12324a';x.lineWidth=3;x.beginPath();x.roundRect(X,Y,w,h,18);x.fill();x.stroke();
+ const F='px Bricolage Grotesque,system-ui,sans-serif';
+ x.fillStyle='#4f7088';x.font='700 12'+F;x.fillText('Intensidad del sismo (Richter)',X+12,Y+20);
+ x.fillStyle='#12324a';x.font='800 34'+F;x.textAlign='right';x.fillText(M.toFixed(1),X+w-12,Y+40);x.textAlign='left';
+ const lv=M<2.5?'Calma':M<5?'Leve':M<6.5?'Moderado':M<8?'Fuerte':'Gigante';x.fillStyle=M<5?'#0fa597':M<6.5?'#e89400':'#ef4b24';x.font='800 15'+F;x.fillText(lv,X+12,Y+40);
+ const px=X+12,py=Y+50,pw=w-24,ph=h-62;
+ x.strokeStyle='rgba(18,50,74,.3)';x.setLineDash([4,4]);x.lineWidth=1;const y6=py+ph-ph*6/9;x.beginPath();x.moveTo(px,y6);x.lineTo(px+pw,y6);x.stroke();x.setLineDash([]);
+ x.fillStyle='rgba(18,50,74,.55)';x.font='10'+F;x.fillText('fuerte',px+2,y6-3);
+ const g=x.createLinearGradient(0,py+ph,0,py);g.addColorStop(0,'#1fc7b7');g.addColorStop(.55,'#ffb400');g.addColorStop(1,'#ef4b24');
+ const Pt=(m,i)=>[px+pw*i/(HN-1),py+ph-ph*Math.min(9,m)/9];
+ x.beginPath();x.moveTo(px,py+ph);hist.forEach((m,i)=>x.lineTo(...Pt(m,i)));x.lineTo(px+pw,py+ph);x.closePath();x.globalAlpha=.3;x.fillStyle=g;x.fill();x.globalAlpha=1;
+ x.beginPath();hist.forEach((m,i)=>i?x.lineTo(...Pt(m,i)):x.moveTo(...Pt(m,i)));x.strokeStyle=g;x.lineWidth=3;x.lineJoin='round';x.stroke()}
 
-                // Ventanas y personas cayendo alrededor de la escena
-                eqContainer.innerHTML = `
-                    ${crearVentanaCayendo(-2.5, 4.2, -4.2, 20, 0)}
-                    ${crearVentanaCayendo(1.8, 4.8, -4.5, -15, 400)}
-                    ${crearVentanaCayendo(4.2, 3.8, -2.5, -55, 800)}
-                    ${crearVentanaCayendo(-4.2, 4.5, -2.0, 50, 1200)}
+function scenery(){const gy=Hh*.73;
+ // Sol radiante
+ x.fillStyle='#fff6a8';x.beginPath();x.arc(W*.6,Hh*.15,48+Math.sin(T*2)*2,0,7);x.fill();
+ x.fillStyle='#ffd23c';x.beginPath();x.arc(W*.6,Hh*.15,32,0,7);x.fill();
+ // Cordillera de los Andes nevada al fondo
+ x.fillStyle='#89b6d9';
+ x.beginPath();x.moveTo(0,gy);x.lineTo(W*.14,gy-Hh*.28);x.lineTo(W*.3,gy-Hh*.12);x.lineTo(W*.48,gy-Hh*.31);x.lineTo(W*.68,gy-Hh*.14);x.lineTo(W*.86,gy-Hh*.27);x.lineTo(W,gy-Hh*.15);x.lineTo(W,gy);x.fill();
+ x.fillStyle='rgba(255,255,255,.78)';
+ [[.14,.28],[.48,.31],[.86,.27]].forEach(([px,phH])=>{
+  x.beginPath();x.moveTo(W*px,gy-Hh*phH);x.lineTo(W*(px-.045),gy-Hh*(phH-.08));x.lineTo(W*(px-.015),gy-Hh*(phH-.06));x.lineTo(W*(px+.015),gy-Hh*(phH-.085));x.lineTo(W*(px+.045),gy-Hh*(phH-.07));x.closePath();x.fill();
+ });
+ // Nubes
+ x.fillStyle='rgba(255,255,255,.95)';[[.1,.3,1],[.45,.2,.8],[.78,.4,1.1]].forEach(([a,b,k])=>{const cx=((a*W+T*14*k)%(W+240))-120,cy=Hh*b;[[0,0,26],[28,-10,32],[60,0,26],[28,8,26]].forEach(([dx,dy,r])=>{x.beginPath();x.arc(cx+dx*k,cy+dy*k,r*k,0,7);x.fill()})});
+ // Colinas
+ x.fillStyle='#7fd88c';x.beginPath();x.moveTo(0,gy);x.quadraticCurveTo(W*.18,gy-Hh*.18,W*.4,gy-Hh*.05);x.quadraticCurveTo(W*.62,gy-Hh*.18,W*.85,gy-Hh*.06);x.quadraticCurveTo(W*.95,gy-Hh*.1,W,gy-Hh*.04);x.lineTo(W,gy);x.fill();
+ x.fillStyle='#4fc16e';x.beginPath();x.moveTo(0,gy);x.quadraticCurveTo(W*.25,gy-Hh*.08,W*.5,gy-Hh*.01);x.quadraticCurveTo(W*.75,gy-Hh*.1,W,gy-Hh*.01);x.lineTo(W,gy);x.fill();
+}
 
-                    ${crearPersonaCayendo(-1.8, -3.6, 15, '#e17055', 150)}
-                    ${crearPersonaCayendo(1.4, -3.4, -20, '#0984e3', 550)}
-                    ${crearPersonaCayendo(3.5, -2.8, -35, '#00b894', 950)}
-                    ${crearPersonaCayendo(-3.4, -2.6, 30, '#fdcb6e', 1350)}
-                `;
+function drawWindowResident(wx,wy,ww,wh,win){
+ const wave=Math.sin(T*18+win.floor*2+win.slot);
+ x.save();
+ // Marco y vidrio de ventana
+ x.beginPath();x.roundRect(wx-ww/2,wy-wh/2,ww,wh,4);
+ if(win.broken){
+  x.fillStyle='#1e293b';x.fill();
+  x.strokeStyle='#bae6fd';x.lineWidth=1.5;x.stroke();
+  // Vidrios rotos en esquinas
+  x.fillStyle='rgba(186,230,253,.7)';
+  x.beginPath();x.moveTo(wx-ww/2,wy-wh/2);x.lineTo(wx-ww/2+6,wy-wh/2);x.lineTo(wx-ww/2,wy-wh/2+7);x.fill();
+  x.beginPath();x.moveTo(wx+ww/2,wy+wh/2);x.lineTo(wx+ww/2-6,wy+wh/2);x.lineTo(wx+ww/2,wy+wh/2-7);x.fill();
+ }else{
+  const alertGlow=win.panic>0.2;
+  x.fillStyle=alertGlow?(Math.floor(T*10+win.floor)%2?'#fde047':'#fb923c'):'#bae6fd';
+  x.fill();
+  // Personaje asomándose cuando hay sismo fuerte
+  if(win.panic>0.12){
+   x.save();
+   x.beginPath();x.roundRect(wx-ww/2,wy-wh/2,ww,wh,4);x.clip();
+   const bobY=Math.abs(wave)*2.5;
+   // Brazos levantados agitándose
+   x.strokeStyle='#fcd5ce';x.lineWidth=2.5;x.lineCap='round';
+   x.beginPath();x.moveTo(wx-4,wy+4-bobY);x.lineTo(wx-9,wy-4-bobY+wave*3);x.stroke();
+   x.beginPath();x.moveTo(wx+4,wy+4-bobY);x.lineTo(wx+9,wy-4-bobY-wave*3);x.stroke();
+   // Camiseta
+   x.fillStyle=win.shirt;
+   x.beginPath();x.roundRect(wx-6,wy+2-bobY,12,10,3);x.fill();
+   // Cabeza y pelo
+   x.fillStyle='#fcd5ce';x.beginPath();x.arc(wx,wy-2-bobY,5.2,0,7);x.fill();
+   x.fillStyle=win.hair;x.beginPath();x.arc(wx,wy-4-bobY,5.3,Math.PI,0);x.fill();
+   // Ojos y boca asustada
+   x.fillStyle='#0f172a';x.beginPath();x.arc(wx-1.8,wy-2-bobY,1,0,7);x.arc(wx+1.8,wy-2-bobY,1,0,7);x.fill();
+   x.fillStyle='#ef4444';x.beginPath();x.arc(wx,wy+0.8-bobY,1.6,0,7);x.fill();
+   x.restore();
+  }else{
+   // Reflejo diagonal vidrio
+   x.strokeStyle='rgba(255,255,255,.75)';x.lineWidth=1.5;
+   x.beginPath();x.moveTo(wx-ww/4,wy-wh/3);x.lineTo(wx+ww/5,wy+wh/4);x.stroke();
+  }
+  x.strokeStyle='#12324a';x.lineWidth=1.8;x.stroke();
+ }
+ // Globito de auxilio ocasional en ventanas muy agitadas
+ if(!win.broken&&win.panic>0.72&&(win.floor+Math.floor(T*2))%5===0&&win.slot===1){
+  x.fillStyle='#fff';x.strokeStyle='#ef4b24';x.lineWidth=1.5;
+  x.beginPath();x.roundRect(wx+ww/2+4,wy-14,52,16,6);x.fill();x.stroke();
+  x.fillStyle='#ef4b24';x.font='800 9px Bricolage Grotesque,sans-serif';x.textAlign='center';
+  x.fillText(win.cry,wx+ww/2+30,wy-3);
+ }
+ x.restore();
+}
 
-                // Sacudida constante sutil de la cámara
-                quakeInterval = setInterval(() => {
-                    const dx = (Math.random() - 0.5) * 0.08;
-                    const dy = 1.6 + (Math.random() - 0.5) * 0.08;
-                    const dz = (Math.random() - 0.5) * 0.08;
-                    camRig.setAttribute('position', `${dx.toFixed(3)} ${dy.toFixed(3)} ${dz.toFixed(3)}`);
-                }, 50);
-            } else {
-                hud.classList.remove('quake-alert');
-                bubble.classList.remove('quake-bubble');
-                eqContainer.innerHTML = '';
-                camRig.setAttribute('position', '0 1.6 0');
-            }
-        }
+function drawFaller(p){
+ x.save();
+ x.translate(p.x,p.y);
+ x.rotate(p.rot);
+ const flail=Math.sin(T*24)*5;
+ // Brazos y piernas agitándose
+ x.strokeStyle='#1e3a8a';x.lineWidth=4;x.lineCap='round';
+ x.beginPath();x.moveTo(-3,6);x.lineTo(-7,15+flail*.4);x.moveTo(3,6);x.lineTo(7,15-flail*.4);x.stroke();
+ x.strokeStyle='#fcd5ce';x.lineWidth=3.5;
+ x.beginPath();x.moveTo(-5,-2);x.lineTo(-13,-10+flail);x.moveTo(5,-2);x.lineTo(13,-10-flail);x.stroke();
+ // Torso
+ x.fillStyle=p.shirt;x.strokeStyle='#12324a';x.lineWidth=1.8;
+ x.beginPath();x.roundRect(-6.5,-5,13,13,4);x.fill();x.stroke();
+ // Cabeza
+ x.fillStyle='#fcd5ce';x.beginPath();x.arc(0,-11,6.8,0,7);x.fill();x.stroke();
+ x.fillStyle=p.hair;x.beginPath();x.arc(0,-13,6.8,Math.PI,0);x.fill();
+ // Ojos y grito
+ x.fillStyle='#0f172a';x.beginPath();x.arc(-2.3,-11,1.2,0,7);x.arc(2.3,-11,1.2,0,7);x.fill();
+ x.fillStyle='#ef4444';x.beginPath();x.ellipse(0,-7.5,2.2,2.8,0,0,7);x.fill();
+ x.restore();
+ if(!p.bounced){
+  x.save();
+  x.fillStyle='#fff';x.strokeStyle='#12324a';x.lineWidth=1.5;
+  x.beginPath();x.roundRect(p.x+10,p.y-26,48,16,7);x.fill();x.stroke();
+  x.fillStyle='#ef4b24';x.font='800 10px Bricolage Grotesque,sans-serif';x.textAlign='center';
+  x.fillText(p.cry,p.x+34,p.y-15);
+  x.restore();
+ }
+}
 
-        function crearHTMLPortal(target, name, dialogMsg, pos, rot, colorHex) {
-            return `
-                <a-entity position="${pos}" rotation="${rot}"
-                          animation="property: position; dir: alternate; dur: 2500; easing: easeInOutSine; loop: true; to: ${pos.split(' ')[0]} ${parseFloat(pos.split(' ')[1]) + 0.15} ${pos.split(' ')[2]}">
-                    
-                    <a-circle class="portal-hitbox" 
-                              data-target="${target}" 
-                              data-name="${name}" 
-                              data-felix="${dialogMsg}"
-                              radius="1.15" 
-                              material="opacity: 0; transparent: true; side: double">
-                    </a-circle>
+const max0=v=>Math.max(v,innerHeight>0?v:0);
+function draw(){
+ x.save();
+ // Sacudida de cámara en terremotos fuertes
+ const shakeAmp=M>4.2?Math.min(11,(M-4.2)*2.1)*(mode===1?.45:1):0;
+ if(shakeAmp>0){
+  x.translate((Math.random()-.5)*shakeAmp*2,(Math.random()-.5)*shakeAmp*1.4);
+ }
 
-                    <a-circle radius="0.95" 
-                              material="src: #tex-vortex; color: ${colorHex}; transparent: true; side: double; shader: flat"
-                              animation="property: rotation; to: 0 0 -360; loop: true; dur: 6000; easing: linear">
-                    </a-circle>
+ const g=x.createLinearGradient(0,0,0,Hh);g.addColorStop(0,'#5cc8ff');g.addColorStop(.7,'#c9f0ff');g.addColorStop(1,'#eafaff');x.fillStyle=g;x.fillRect(-20,-20,W+40,Hh+40);
+ scenery();
 
-                    <a-plane width="2.4" height="2.4" 
-                             position="0 0 0.02"
-                             material="src: #tex-runes; transparent: true; side: double; shader: flat"
-                             animation="property: rotation; to: 0 0 360; loop: true; dur: 14000; easing: linear">
-                    </a-plane>
+ const gy=Hh*.73,cx=W<760?W*.5:W*.42,sp=Math.min(40,Hh*.4/(N+1)),S=sp/HS,e=S*3,bw=Math.min(W*.2,sp*4),tw=Math.min(W*.6,480),ty=gy-14,b=B[mode],tx=ug*e;
+ x.fillStyle='#ffd98a';x.fillRect(-20,gy,W+40,Hh-gy+20);x.fillStyle='#f4b95a';x.fillRect(-20,gy,W+40,6);
 
-                    <a-torus radius="0.98" radius-tubular="0.025" 
-                             material="color: #ffd32a; emissive: #ffa801; emissiveIntensity: 0.8; metalness: 0.6; roughness: 0.2">
-                    </a-torus>
+ // Colchonetas inflables de rescate a ambos lados de la mesa vibratoria
+ [-1,1].forEach(side=>{
+  const mx=cx+side*(bw*0.95+28);
+  x.fillStyle='#ef4b24';x.strokeStyle='#12324a';x.lineWidth=2.5;
+  x.beginPath();x.roundRect(mx-34,gy-12,68,12,6);x.fill();x.stroke();
+  x.fillStyle='#ffc93c';x.fillRect(mx-24,gy-8,48,4);
+ });
 
-                    <a-entity position="0 1.35 0">
-                        <a-plane width="2.2" height="0.38" material="color: #0f1423; opacity: 0.85; transparent: true"></a-plane>
-                        <a-text value="${name}" align="center" position="0 0 0.02" scale="1.1 1.1 1.1" color="#ffd32a"></a-text>
-                    </a-entity>
-                </a-entity>
-            `;
-        }
+ // Mesa vibratoria
+ x.fillStyle='#4d7cc0';x.fillRect(cx-tw/2-10,ty+12,tw+20,gy-ty-12);
+ x.strokeStyle='#6b7f93';x.lineWidth=7;x.beginPath();x.moveTo(cx-tw/2-70,ty+6);x.lineTo(cx-tw/2+tx,ty+6);x.stroke();
+ x.fillStyle='#ff8a5c';x.fillRect(cx-tw/2+tx,ty,tw,12);x.fillStyle='#ffc93c';for(let k=0;k<tw/30;k++)x.fillRect(cx-tw/2+tx+k*30+6,ty+4,14,4);
 
-        function actualizarEscena(currentImage) {
-            const container = document.querySelector('#portals-container');
-            let html = '';
+ const by=ty-16,xb=cx+b.u[0]*e;let ys=[by];for(let i=1;i<=N;i++)ys[i]=ys[i-1]-sp*(1-.35*Math.min(1,b.d[i]));
+ lastScreenPos={cx,ys,bw,gy,e};
 
-            if (currentImage === '1.webp') {
-                activarEfectoTerremoto(false);
-                html += crearHTMLPortal(
-                    '2.webp', 
-                    'Ir a Terremoto Volcánico (2)', 
-                    '¡¡Lo reparé!! ¡Cuidado, aquí hay un terremoto! ¡Las ventanas y la gente están cayendo!',
-                    '3 1.6 -3.5', 
-                    '0 -35 0', 
-                    '#ff4757'
-                );
-            } else if (currentImage === '2.webp') {
-                activarEfectoTerremoto(true);
-                html += crearHTMLPortal(
-                    '1.webp', 
-                    'Volver a Playa Ruinas (1)', 
-                    '¡Vamos a la Playa de las Ruinas antes de que caiga otra ventana! ¡Rápido al portal!',
-                    '-3.2 1.6 -3.2', 
-                    '0 40 0', 
-                    '#1e90ff'
-                );
-                html += crearHTMLPortal(
-                    '3.webp', 
-                    'Ir a Costa en Temblor (3)', 
-                    '¡El temblor sigue fuerte en la Costa! ¡Agárrate bien mientras cruzamos!',
-                    '3.2 1.6 -3.2', 
-                    '0 -40 0', 
-                    '#ffa502'
-                );
-            } else if (currentImage === '3.webp') {
-                activarEfectoTerremoto(true);
-                html += crearHTMLPortal(
-                    '2.webp', 
-                    'Volver a Terremoto Volcánico (2)', 
-                    '¡Regresamos al sector del volcán! ¡Mantén la vista firme en el portal para estabilizarlo!',
-                    '-3 1.6 -3.5', 
-                    '0 35 0', 
-                    '#ff4757'
-                );
-            }
+ if(b.m==1){const half=bw*.8,c=cx+tx;x.fillStyle='#0fa597';x.beginPath();x.moveTo(c-half-14,ty);x.lineTo(c-half,ty);x.quadraticCurveTo(c,ty+22,c+half,ty);x.lineTo(c+half+14,ty);x.lineTo(c+half+14,ty-4);x.lineTo(c-half-14,ty-4);x.fill();
+  x.fillStyle='#fff';x.strokeStyle='#12324a';x.lineWidth=3;x.beginPath();x.arc(xb,ty-3,5,0,7);x.fill();x.stroke();x.beginPath();x.moveTo(xb,ty-8);x.lineTo(xb,by);x.stroke()}
+ else{x.fillStyle='#8a97a3';x.fillRect(cx+tx-bw*.6,by,bw*1.2,ty-by)}
 
-            container.innerHTML = html;
-        }
+ // Silueta guía punteada
+ x.setLineDash([5,5]);x.strokeStyle='rgba(18,50,74,.35)';x.lineWidth=1.5;x.strokeRect(cx-bw/2,ys[N],bw,by-ys[N]);x.setLineDash([]);
 
-        document.addEventListener("DOMContentLoaded", () => {
-            generarTexturasMagicas();
-            actualizarEscena('1.webp');
+ // Pisos del edificio, fachada, ventanas con personas, disipadores y grietas
+ for(let i=1;i<=N;i++){
+  const xl=cx+b.u[i-1]*e,xu=cx+b.u[i]*e,d=Math.min(1,b.d[i]),y0=ys[i-1],y1=ys[i],hh=y0-y1;
+  const poly=()=>{x.beginPath();x.moveTo(xl-bw/2,y0);x.lineTo(xl+bw/2,y0);x.lineTo(xu+bw/2,y1);x.lineTo(xu-bw/2,y1);x.closePath()};
+  poly();x.fillStyle=mix(d);x.fill();const tex=okI();
+  if(tex){x.save();poly();x.clip();const fh=FAC.height/N;x.translate(xu-bw/2,y1);x.transform(1,0,(xl-xu)/hh,1,0,0);x.drawImage(FAC,0,(N-i)*fh,FAC.width,fh,0,0,bw,hh);x.restore();poly();x.fillStyle=`rgba(255,70,30,${d*.52})`;x.fill()}
+  poly();x.strokeStyle='#12324a';x.lineWidth=2.5;x.stroke();
 
-            const container = document.querySelector('#portals-container');
-            const sky = document.querySelector('#sky-sphere');
-            const instruction = document.querySelector('#instruction');
-            const felixText = document.querySelector('#felix-text');
+  // Ventanas de este piso con vecinos
+  const xm=(xl+xu)/2,ym=(y0+y1)/2,ww=Math.min(22,bw*.22),wh=Math.min(22,hh*.64);
+  for(let w=0;w<3;w++){
+   const winObj=WINDOWS[(i-1)*3+w];
+   const wx=xm+(w-1)*(bw*0.29);
+   drawWindowResident(wx,ym,ww,wh,winObj);
+  }
 
-            container.addEventListener('click', (evt) => {
-                const hitbox = evt.target.closest('.portal-hitbox');
-                if (!hitbox) return;
+  // Disipadores con brillo térmico según velocidad relativa
+  if(b.m==2){
+   const relV=Math.min(1,Math.abs(b.v[i]-b.v[i-1])*1.8);
+   x.strokeStyle=relV>.25?'#ffbe0b':'#ff6a3d';
+   x.lineWidth=3+relV*2;
+   x.beginPath();x.moveTo(xl-bw/2+4,y0-1);x.lineTo(xu+bw/2-4,y1+1);x.stroke();
+   x.fillStyle=relV>.25?'#ff5400':'#ffc93c';
+   x.beginPath();x.arc(xm,ym,4.5+relV*2,0,7);x.fill();
+   x.strokeStyle='#12324a';x.lineWidth=1.5;x.stroke();
+  }
 
-                const targetImage = hitbox.getAttribute('data-target');
-                const targetName = hitbox.getAttribute('data-name');
-                const nuevoDialogo = hitbox.getAttribute('data-felix');
+  // Grietas estructurales
+  if(d>.25){
+   x.strokeStyle='rgba(255,255,255,.92)';x.lineWidth=1.8;
+   const c=b.cr[i],n=1+Math.floor(d*4);
+   for(let k=0;k<n;k++){const s=(k*.31+c[k%4]*.4)*bw-bw*.4;x.beginPath();x.moveTo(xm+s,y0);x.lineTo(xm+s+7,(y0+y1)/2-4);x.lineTo(xm+s-5,(y0+y1)/2+3);x.lineTo(xm+s+4,y1);x.stroke()}
+  }
+ }
 
-                if (targetImage && sky) {
-                    sky.setAttribute('src', targetImage);
-                    instruction.innerText = `🌌 Realidad actual: ${targetName} 🌌`;
-                    instruction.style.color = "#fffa65";
-                    felixText.innerText = nuevoDialogo;
-                    actualizarEscena(targetImage);
-                }
-            });
+ // Dibujar personajes cayendo y partículas
+ FALLERS.forEach(drawFaller);
+ PARTICLES.forEach(pt=>{
+  x.save();
+  x.globalAlpha=Math.max(0,pt.life);
+  x.fillStyle=pt.color;
+  if(pt.star){
+   x.translate(pt.x,pt.y);x.rotate(pt.life*6);
+   x.fillRect(-pt.size/2,-pt.size/2,pt.size,pt.size);
+  }else{
+   x.beginPath();x.arc(pt.x,pt.y,pt.size,0,7);x.fill();
+  }
+  x.restore();
+ });
 
-            container.addEventListener('fusing', (evt) => {
-                if (evt.target.closest('.portal-hitbox')) {
-                    instruction.innerText = "🔨✨ Repara Félix está abriendo el portal... ✨🔨";
-                    instruction.style.color = "#2ed573";
-                }
-            }, true);
+ x.textAlign='center';x.fillStyle=COL[mode];x.font='800 26px Bricolage Grotesque,system-ui,sans-serif';x.fillText(MODES[mode],cx,gy+36);
+ x.fillStyle='#12324a';x.font='600 14px Bricolage Grotesque,system-ui,sans-serif';x.fillText(INFO[mode],cx,gy+56,Math.min(W*.9,560));x.textAlign='left';
 
-            container.addEventListener('mouseleave', (evt) => {
-                if (evt.target.closest('.portal-hitbox')) {
-                    instruction.innerText = "✨ Apunta tu mirada al portal brillante para viajar de realidad ✨";
-                    instruction.style.color = "#fffa65";
-                }
-            }, true);
-        });
-    </script>
-</body>
-</html>
+ // Viñeta roja de tensión en terremotos fuertes
+ if(M>6.2){
+  const pulse=.14+.1*Math.sin(T*12);
+  const vg2=x.createRadialGradient(W/2,Hh/2,Math.min(W,Hh)*.32,W/2,Hh/2,Math.max(W,Hh)*.72);
+  vg2.addColorStop(0,'rgba(239,75,36,0)');
+  vg2.addColorStop(1,`rgba(239,75,36,${pulse})`);
+  x.fillStyle=vg2;x.fillRect(0,0,W,Hh);
+ }
+
+ x.restore();
+ chart();
+}
+let last=performance.now();
+function frame(t){const dt=Math.min(.033,(t-last)/1000);last=t;sim(dt);draw();requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+</script></body></html>
