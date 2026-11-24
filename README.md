@@ -21,7 +21,7 @@ Esta aplicación modela un **edificio de corte de 10 pisos** montado sobre una m
 2. **Aislación sísmica:** La estructura descansa sobre apoyos deslizantes que funcionan como un péndulo invertido. El suelo se desplaza bajo el edificio mientras la superestructura permanece casi inmóvil, reduciendo drásticamente las deformaciones internas.
 3. **Disipadores de energía:** Incorpora amortiguadores diagonales entre pisos que absorben la energía cinética del balanceo y la transforman en calor, frenando rápidamente las oscilaciones.
 
-La experiencia está acompañada por un guía virtual (**el Tío Constructor**), un sismógrafo en vivo en escala Richter, retroalimentación visual de grietas y un motor de audio generativo que adapta el retumbo, los crujidos estructurales y las alarmas según la intensidad del sismo.
+La experiencia está acompañada por un guía virtual (**ReparaFelix**), un sismógrafo en vivo en escala Richter, retroalimentación visual de grietas y un motor de audio generativo que adapta el retumbo, los crujidos estructurales y las alarmas según la intensidad del sismo.
 
 ---
 
