@@ -7,7 +7,7 @@ Simulación educativa e interactiva sobre ingeniería sísmica chilena, inspirad
 
 ## 🎬 Video de demostración
 https://youtu.be/2y0M3iRitiQ 
-### Opción 1: Reproductor de video directo (`.mp4` / GitHub)
+
 
 <div align="center">
 
